@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --g1:#0B8F4D; --g2:#097a40;
+  --g-light:#d8f3dc; --g-pale:#f0faf4;
+  --slate:#f8fafc; --white:#ffffff; --border:#e8f0ec;
+  --txt-1:#111827; --txt-2:#4b5563; --txt-3:#9ca3af;
+  --red:#ef4444; --red-bg:#fef2f2;
+  --radius:14px; --radius-sm:10px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.05);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+.ep-wrap{
+  font-family:'Sora',sans-serif;
+  max-width:760px;margin:0 auto;
+  padding:24px 16px 80px;color:var(--txt-1);
+}
+
+/* ── MESSAGES ── */
+.ep-msg{
+  padding:12px 16px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:500;
+  display:flex;align-items:center;gap:8px;margin-bottom:20px;
+}
+.ep-msg-success{background:var(--g-light);color:#1a3d2b;}
+.ep-msg-error  {background:var(--red-bg); color:var(--red);}
+
+/* ── HEADER ── */
+.ep-header{margin-bottom:24px;}
+.ep-breadcrumb{
+  display:flex;align-items:center;gap:6px;
+  font-size:13px;color:var(--txt-3);margin-bottom:8px;flex-wrap:wrap;
+}
+.ep-breadcrumb a{color:var(--g1);text-decoration:none;font-weight:500;}
+.ep-breadcrumb a:hover{color:var(--g2);}
+.ep-breadcrumb span{color:var(--border);}
+.ep-title{font-size:22px;font-weight:700;color:var(--txt-1);line-height:1.2;}
+.ep-subtitle{font-size:13px;color:var(--txt-3);margin-top:3px;}
+
+/* ── FORM CARD ── */
+.ep-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.ep-card-header{
+  padding:18px 24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+  background:var(--g-pale);
+}
+.ep-card-header-icon{
+  width:36px;height:36px;border-radius:9px;background:var(--g-light);
+  color:var(--g1);display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.ep-card-title{font-size:15px;font-weight:700;color:var(--txt-1);}
+
+.ep-body{padding:24px;}
+
+/* ── IMAGE PREVIEW ── */
+.ep-image-section{margin-bottom:24px;}
+.ep-current-img{
+  width:100%;max-height:220px;object-fit:cover;
+  border-radius:var(--radius-sm);border:1px solid var(--border);
+  display:block;margin-bottom:12px;
+}
+.ep-no-img{
+  width:100%;height:160px;background:var(--g-pale);
+  border:2px dashed var(--border);border-radius:var(--radius-sm);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:8px;color:var(--txt-3);font-size:13px;
+  margin-bottom:12px;
+}
+.ep-no-img i{font-size:32px;opacity:.4;}
+
+/* ── FIELDS ── */
+.ep-field{margin-bottom:18px;}
+.ep-label{
+  display:block;font-size:12px;font-weight:600;color:var(--txt-2);
+  text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;
+}
+.ep-label span{color:var(--red);margin-left:2px;}
+.ep-input,.ep-select,.ep-textarea{
+  width:100%;padding:11px 14px;
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  font-family:'Sora',sans-serif;font-size:14px;color:var(--txt-1);
+  background:var(--white);outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.ep-input:focus,.ep-select:focus,.ep-textarea:focus{
+  border-color:var(--g1);box-shadow:0 0 0 3px rgba(11,143,77,.12);
+}
+.ep-textarea{resize:vertical;min-height:100px;}
+.ep-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3af' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
+.ep-field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:580px){.ep-field-row{grid-template-columns:1fr;}}
+
+/* TOGGLE CHECKBOXES */
+.ep-toggles{display:flex;gap:16px;flex-wrap:wrap;}
+.ep-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;}
+.ep-toggle input[type=checkbox]{
+  width:18px;height:18px;border-radius:4px;
+  accent-color:var(--g1);cursor:pointer;
+}
+.ep-toggle-label{font-size:13px;font-weight:600;color:var(--txt-2);cursor:pointer;}
+
+/* ── FOOTER ── */
+.ep-footer{
+  padding:18px 24px;border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:flex-end;
+  gap:10px;flex-wrap:wrap;background:var(--slate);
+}
+@media(max-width:480px){
+  .ep-footer{justify-content:stretch;}
+  .ep-footer .ep-btn-cancel,
+  .ep-footer .ep-btn-save{flex:1;justify-content:center;}
+}
+
+.ep-btn-cancel{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:11px 20px;border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);background:var(--white);
+  font-family:'Sora',sans-serif;font-size:13px;font-weight:600;
+  color:var(--txt-2);cursor:pointer;text-decoration:none;
+  transition:background .2s;
+}
+.ep-btn-cancel:hover{background:var(--slate);}
+.ep-btn-save{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:11px 24px;background:var(--g1);color:#fff;border:none;
+  border-radius:var(--radius-sm);font-family:'Sora',sans-serif;
+  font-size:13px;font-weight:600;cursor:pointer;
+  box-shadow:0 3px 10px rgba(11,143,77,.25);
+  transition:background .2s,transform .15s;
+}
+.ep-btn-save:hover{background:var(--g2);transform:translateY(-1px);}
+
+/* Divider */
+.ep-divider{height:1px;background:var(--border);margin:22px 0;}
+</style>
+
+<div class="ep-wrap">
+
+  <!-- MESSAGES -->
+  {% if messages %}
+    {% for message in messages %}
+    <div class="ep-msg ep-msg-{{ message.tags|default:'success' }}">
+      <i class="bi bi-{% if message.tags == 'error' %}x-circle{% else %}check-circle{% endif %}-fill"></i>
+      {{ message }}
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- HEADER -->
+  <div class="ep-header">
+    <nav class="ep-breadcrumb">
+      <a href="{% url 'farmer_dashboard' %}">Dashboard</a>
+      <span>/</span>
+      {% if source == 'dashboard' %}
+        <a href="{% url 'farmer_dashboard' %}">Products</a>
+      {% else %}
+        <a href="{% url 'my_products' %}">My Products</a>
+      {% endif %}
+      <span>/</span>
+      <span>Edit</span>
+    </nav>
+    <div class="ep-title">Edit Product</div>
+    <div class="ep-subtitle">Update the details for "{{ product.name }}"</div>
+  </div>
+
+  <!-- FORM -->
+  <div class="ep-card">
+    <div class="ep-card-header">
+      <div class="ep-card-header-icon"><i class="bi bi-pencil-square"></i></div>
+      <div class="ep-card-title">Product Details</div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <!-- Pass source through form so POST redirect works correctly -->
+      <input type="hidden" name="source" value="{{ source }}">
+
+      <div class="ep-body">
+
+        <!-- CURRENT IMAGE -->
+        <div class="ep-image-section">
+          <label class="ep-label">Current Image</label>
+          {% if product.image %}
+            <img src="{{ product.image.url }}" class="ep-current-img" alt="{{ product.name }}">
+          {% else %}
+            <div class="ep-no-img">
+              <i class="bi bi-image"></i>
+              <span>No image uploaded</span>
+            </div>
+          {% endif %}
+          <div class="ep-field">
+            <label class="ep-label">Replace Image</label>
+            <input type="file" name="image" class="ep-input" accept="image/*">
+          </div>
+        </div>
+
+        <div class="ep-divider"></div>
+
+        <!-- NAME + CATEGORY -->
+        <div class="ep-field-row">
+          <div class="ep-field">
+            <label class="ep-label">Product Name <span>*</span></label>
+            <input type="text" name="name" class="ep-input"
+                   value="{{ product.name }}" required placeholder="e.g. Fresh Tomatoes">
+          </div>
+          <div class="ep-field">
+            <label class="ep-label">Category <span>*</span></label>
+            <select name="category" class="ep-select" required>
+              {% for value, label in product.CATEGORY_CHOICES %}
+              <option value="{{ value }}" {% if product.category == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <!-- PRICE + QUANTITY -->
+        <div class="ep-field-row">
+          <div class="ep-field">
+            <label class="ep-label">Price (₦) <span>*</span></label>
+            <input type="number" name="price" class="ep-input"
+                   value="{{ product.price }}" min="0" step="0.01" required placeholder="0.00">
+          </div>
+          <div class="ep-field">
+            <label class="ep-label">Quantity Available <span>*</span></label>
+            <input type="number" name="quantity" class="ep-input"
+                   value="{{ product.quantity }}" min="0" required placeholder="0">
+          </div>
+        </div>
+
+        <!-- LOCATION -->
+        <div class="ep-field">
+          <label class="ep-label">Location / Origin <span>*</span></label>
+          <input type="text" name="location" class="ep-input"
+                 value="{{ product.location }}" required placeholder="e.g. Ogun State">
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div class="ep-field">
+          <label class="ep-label">Description</label>
+          <textarea name="description" class="ep-textarea"
+                    placeholder="Describe the product — freshness, packaging, how it's grown…">{{ product.description|default:'' }}</textarea>
+        </div>
+
+        <!-- TOGGLES -->
+        <div class="ep-field">
+          <label class="ep-label">Labels</label>
+          <div class="ep-toggles">
+            <label class="ep-toggle">
+              <input type="checkbox" name="is_new" {% if product.is_new %}checked{% endif %}>
+              <span class="ep-toggle-label"> Mark as New</span>
+            </label>
+            <label class="ep-toggle">
+              <input type="checkbox" name="is_hot" {% if product.is_hot %}checked{% endif %}>
+              <span class="ep-toggle-label"> Mark as Popular/Hot</span>
+            </label>
+          </div>
+        </div>
+
+      </div><!-- /ep-body -->
+
+      <!-- FOOTER: Cancel goes back to origin, Save submits -->
+      <div class="ep-footer">
+        {% if source == 'dashboard' %}
+          <a href="{% url 'farmer_dashboard' %}" class="ep-btn-cancel">
+            <i class="bi bi-arrow-left"></i> Cancel
+          </a>
+        {% else %}
+          <a href="{% url 'my_products' %}" class="ep-btn-cancel">
+            <i class="bi bi-arrow-left"></i> Cancel
+          </a>
+        {% endif %}
+        <button type="submit" class="ep-btn-save">
+          <i class="bi bi-check-lg"></i> Save Changes
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+{% endblock %}

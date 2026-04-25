@@ -1,0 +1,628 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Market</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f5f7f6;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .top-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #d4f2df;
+            padding: 10px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 2000;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: inset 0 -1px 0 rgba(0,0,0,0.08);
+        }
+
+        .top-header.hidden { transform: translateY(-100%); }
+
+        .logo {
+            height: 80px;
+            object-fit: contain;
+            filter: contrast(130%);
+        }
+
+        .nav-link-green {
+            color: #0B8F4D;
+            font-size: 15px;
+            font-weight: 500;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 10px;
+            transition: 0.3s ease;
+            position: relative;
+            gap: 6px;
+        }
+
+        .nav-link-green:hover { background: #0B8F4D; color: white; transform: translateY(-2px); }
+        .nav-link-green.active { background: #0B8F4D; color: white; }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-toggler {
+            border: none;
+            background: transparent;
+            font-size: 28px;
+            color: #0B8F4D;
+        }
+
+        .cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background: red;
+    color: white;
+    font-size: 11px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+        /* ── NOTIFICATION BELL ── */
+        .notif-wrap { position: relative; }
+
+        .notif-btn {
+            color: #0B8F4D;
+            font-size: 15px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.3s ease;
+            position: relative;
+        }
+
+        .notif-btn:hover { background: #0B8F4D; color: white; transform: translateY(-2px); }
+
+        .notif-badge {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            min-width: 17px;
+            height: 17px;
+            padding: 0 4px;
+            background: #ef4444;
+            border-radius: 9px;
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .notif-badge.hidden { display: none; }
+
+        .notif-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 320px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.14);
+            border: 1px solid #e5e7eb;
+            z-index: 3000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .notif-dropdown.open { display: block; }
+
+        .notif-head {
+            padding: 13px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .notif-head-title { font-size: 13px; font-weight: 700; color: #111827; }
+
+        .notif-mark-all {
+            font-size: 11px;
+            color: #0B8F4D;
+            font-weight: 600;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .notif-list { max-height: 300px; overflow-y: auto; }
+
+        .notif-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f9fafb;
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            transition: background 0.15s;
+        }
+
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item:hover { background: #f8fafc; }
+
+        /* unread — highlighted green tint */
+        .notif-item.unread { background: #f0faf4; }
+        .notif-item.unread:hover { background: #e8f7ef; }
+        .notif-item.unread .notif-msg { font-weight: 600; color: #111827; }
+
+        /* FIX 6: read — dimmed so unread items stand out clearly */
+        .notif-item.read { opacity: 0.65; }
+        .notif-item.read .notif-msg { font-weight: 400; color: #6b7280; }
+        .notif-item.read:hover { opacity: 1; background: #f8fafc; }
+
+        .notif-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .notif-icon.order  { background: #d8f3dc; color: #0B8F4D; }
+        .notif-icon.update { background: #eff6ff; color: #3b82f6; }
+        .notif-icon.alert  { background: #fffbeb; color: #f59e0b; }
+
+        .notif-text { flex: 1; min-width: 0; }
+        .notif-msg { font-size: 12.5px; color: #374151; line-height: 1.45; }
+        .notif-time { font-size: 11px; color: #9ca3af; margin-top: 3px; }
+
+        .notif-unread-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #0B8F4D;
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+
+        /* FIX 7: toggle read/unread button styling */
+        .notif-toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #9ca3af;
+            font-size: 13px;
+            padding: 4px 5px;
+            border-radius: 6px;
+            flex-shrink: 0;
+            transition: color 0.2s, background 0.2s;
+            line-height: 1;
+        }
+
+        .notif-toggle-btn:hover { color: #0B8F4D; background: #d8f3dc; }
+
+        .notif-empty { padding: 32px 16px; text-align: center; color: #9ca3af; font-size: 13px; }
+        .notif-empty i { font-size: 26px; display: block; margin-bottom: 7px; opacity: 0.35; }
+
+        .notif-footer {
+            padding: 9px 16px;
+            border-top: 1px solid #f0f0f0;
+            text-align: center;
+        }
+
+        .notif-footer a { font-size: 12px; color: #0B8F4D; font-weight: 600; text-decoration: none; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 991px) {
+            /* dropdown becomes full-width below the header on mobile */
+            .notif-dropdown {
+                position: fixed;
+                top: 70px;
+                right: 10px;
+                left: 10px;
+                width: auto;
+            }
+
+            .top-header {
+                flex-wrap: wrap;
+                align-items: center;
+                padding: 10px 15px;
+            }
+
+            .logo { order: 1; max-width: 150px; width: 100%; }
+
+            .navbar-toggler {
+                order: 2;
+                margin-left: auto;
+                font-size: 26px;
+                color: #0B8F4D;
+            }
+
+            .nav-container {
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: 280px;
+                max-width: 80vw;
+                height: 100vh;
+                background: #e9f9ef;
+                z-index: 1100;
+                transform: translateX(100%);
+                transition: transform 0.25s ease-in-out;
+                flex-direction: column;
+                padding: 72px 14px 14px 14px;
+                box-shadow: -8px 0 25px rgba(0,0,0,0.2);
+            }
+
+            .nav-container.show { transform: translateX(0); }
+
+            .nav-link-green {
+                width: 100%;
+                padding: 12px;
+                border-radius: 10px;
+                margin-bottom: 6px;
+            }
+
+            .nav-link-green:last-child { margin-bottom: 0; }
+
+            /* notification button matches nav links exactly on mobile */
+            .notif-wrap { width: 100%; }
+            .notif-btn {
+                width: 100%;
+                padding: 12px;
+                border-radius: 10px;
+                margin-bottom: 6px;
+                justify-content: flex-start;
+                font-size: 15px;
+            }
+
+            .top-header::before {
+                content: "";
+                position: fixed;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
+                background: rgba(0,0,0,0.3);
+                z-index: 1050;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.25s ease;
+            }
+
+            .top-header.nav-open::before { opacity: 1; visibility: visible; }
+        }
+
+        .main-container { padding: 100px 25px 25px; }
+        .section { padding-top: 30px; }
+
+        footer { background: white; border-top: 1px solid #eee; }
+
+        .footer-bar {
+            background: linear-gradient(135deg, #0B8F4D, #0A7A42);
+            color: white;
+            padding: 3rem 0 1rem 0;
+            text-align: left;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .footer-bar .row, .footer-bar .col-lg-3, .footer-bar .col-md-6 { text-align: left; }
+        .footer-bar h5, .footer-bar h6 { color: white; font-weight: 600; }
+        .footer-bar ul li { margin-bottom: 0.5rem; }
+        .footer-bar a { color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s ease; }
+        .footer-bar a:hover { color: white; }
+        .footer-bar p { margin: 0; }
+
+        @media (max-width: 768px) {
+            .footer-bar { text-align: center; padding: 2rem 0 1rem 0; }
+            .footer-bar .row { text-align: center; }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="top-header">
+
+    <img src="{% static 'images/logo.png' %}" class="logo">
+
+    <button class="navbar-toggler d-lg-none" onclick="toggleMenu()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <div class="nav-container d-lg-flex">
+
+        {% if request.user.is_authenticated %}
+
+            {% if request.user.profile.role == "farmer" %}
+
+                <a href="{% url 'farmer_dashboard' %}" class="nav-link-green {% if request.path == '/farmer/dashboard/' %}active{% endif %}">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+
+                <a href="{% url 'add_product' %}" class="nav-link-green">
+                    <i class="bi bi-plus-circle"></i> Add Product
+                </a>
+
+                <a href="{% url 'my_products' %}" class="nav-link-green">
+                    <i class="bi bi-box-seam"></i> My Products
+                </a>
+
+            {% else %}
+
+                <a href="{% url 'home' %}" class="nav-link-green {% if request.path == '/home/' %}active{% endif %}">
+                    <i class="bi bi-house-door"></i> Home
+                </a>
+
+                <a href="{% url 'product_list' %}" class="nav-link-green">
+                    <i class="bi bi-grid"></i> Categories
+                </a>
+
+            <a href="{% url 'cart' %}" class="nav-link-green position-relative">
+    <i class="bi bi-cart"></i> Cart
+
+    {% if request.session.cart %}
+    <span class="cart-badge">
+        {{ request.session.cart.values|length }}
+    </span>
+    {% endif %}
+</a>
+
+            {% endif %}
+
+            <!-- notification bell -->
+            <div class="notif-wrap">
+                <button class="notif-btn" onclick="toggleNotif(event)">
+                    <i class="bi bi-bell"></i>
+                    Notifications
+                    <span class="notif-badge hidden" id="notifBadge"></span>
+                </button>
+
+                <div class="notif-dropdown" id="notifDropdown">
+                    <div class="notif-head">
+                        <span class="notif-head-title">Notifications</span>
+                        <button class="notif-mark-all" onclick="markAllRead()">Mark all read</button>
+                    </div>
+                    <div class="notif-list" id="notifList">
+                        <div class="notif-empty">
+                            <i class="bi bi-bell-slash"></i>
+                            No notifications yet
+                        </div>
+                    </div>
+                    <div class="notif-footer">
+                        <a href="#">See all</a>
+                    </div>
+                </div>
+            </div>
+
+            <a href="{% url 'profile' %}" class="nav-link-green">
+                <i class="bi bi-person-circle"></i> Profile
+            </a>
+
+            <a href="{% url 'logout' %}" class="nav-link-green">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+
+        {% else %}
+
+            <a href="{% url 'login' %}" class="nav-link-green">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+            </a>
+
+            <a href="{% url 'signup' %}" class="nav-link-green">
+                <i class="bi bi-person-plus"></i> Signup
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+<div class="main-container">
+    {% block content %}{% endblock %}
+</div>
+
+<footer class="py-3 mt-5">
+    <div class="container text-center text-muted">
+        <small>© {% now "Y" %} FarmMarket. All rights reserved.</small>
+    </div>
+</footer>
+
+<div class="footer-bar">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h5 class="text-white mb-3">FARM MARKET AFRICA</h5>
+                <p class="mb-0">A web-based platform that connects farmers and buyers.</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h6 class="text-white mb-3">Product</h6>
+                <ul class="list-unstyled">
+                    <li><a href="#">For Farmers</a></li>
+                    <li><a href="#">For Buyers</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h6 class="text-white mb-3">Support</h6>
+                <ul class="list-unstyled">
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="mailto:farmmarketsupport1@gmail.com">Contact - farmmarketsupport1@gmail.com</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h6 class="text-white mb-3">Company</h6>
+                <ul class="list-unstyled">
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Privacy</a></li>
+                </ul>
+            </div>
+        </div>
+        <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
+        <div class="text-center">
+            <p class="mb-0">&copy; 2026 FarmMarketAfrica. All rights reserved.</p>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/script.js' %}"></script>
+
+<!-- hamburger menu -->
+<script>
+function toggleMenu() {
+    const nav    = document.querySelector('.nav-container');
+    const header = document.querySelector('.top-header');
+    nav.classList.toggle('show');
+    header.classList.toggle('nav-open');
+}
+
+function closeMenu() {
+    document.querySelector('.nav-container').classList.remove('show');
+    document.querySelector('.top-header').classList.remove('nav-open');
+}
+
+document.querySelectorAll('.nav-link-green').forEach(link => {
+    link.addEventListener('click', closeMenu);
+});
+
+document.addEventListener('click', function(e) {
+    const nav    = document.querySelector('.nav-container');
+    const header = document.querySelector('.top-header');
+    if (!nav.classList.contains('show')) return;
+    if (!header.contains(e.target)) closeMenu();
+});
+</script>
+
+{% if request.user.is_authenticated %}
+<script>
+
+let notifOpen = false;
+function toggleNotif(e) {
+    e.stopPropagation();          
+    notifOpen = !notifOpen;
+    document.getElementById('notifDropdown').classList.toggle('open', notifOpen);
+    if (notifOpen) loadNotifs();  
+}
+
+
+document.addEventListener('click', function(e) {
+    const wrap = document.querySelector('.notif-wrap');
+    if (wrap && !wrap.contains(e.target)) {
+        notifOpen = false;
+        document.getElementById('notifDropdown').classList.remove('open');
+    }
+});
+
+/* FIX 3 & 4: load notifications and start background polling */
+function loadNotifs() {
+    fetch('/notifications/', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.json())
+        .then(data => {
+            const badge = document.getElementById('notifBadge');
+            const list  = document.getElementById('notifList');
+
+            if (data.count > 0) {
+                badge.textContent = data.count > 9 ? '9+' : data.count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            if (!data.notifications.length) {
+                list.innerHTML = '<div class="notif-empty"><i class="bi bi-bell-slash"></i>No notifications yet</div>';
+                return;
+            }
+
+            const iconMap = {
+                order:  'bag-check',
+                update: 'arrow-repeat',
+                alert:  'exclamation-triangle'
+            };
+
+            list.innerHTML = data.notifications.map(n => `
+                <div class="notif-item ${n.is_read ? 'read' : 'unread'}" data-id="${n.id}">
+                    <div class="notif-icon ${n.type || 'order'}">
+                        <i class="bi bi-${iconMap[n.type] || 'bag-check'}"></i>
+                    </div>
+                    <div class="notif-text">
+                        <div class="notif-msg">${n.message}</div>
+                        <div class="notif-time">${n.time}</div>
+                    </div>
+                    <button
+                        class="notif-toggle-btn"
+                        title="${n.is_read ? 'Mark as unread' : 'Mark as read'}"
+                        onclick="toggleRead(${n.id}, this)">
+                        <i class="bi bi-${n.is_read ? 'envelope' : 'envelope-open'}"></i>
+                    </button>
+                    ${!n.is_read ? '<div class="notif-unread-dot"></div>' : ''}
+                </div>
+            `).join('');
+        })
+        .catch(() => {});
+}
+
+function markAllRead() {
+    const csrf = document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1];
+    fetch('/notifications/read/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) loadNotifs();  
+    })
+    .catch(() => {});
+}
+
+function toggleRead(id, btn) {
+    const csrf = document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1];
+    fetch(`/notifications/${id}/toggle/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) loadNotifs();
+    })
+    .catch(() => {});
+}
+
+loadNotifs();
+
+setInterval(loadNotifs, 60000);
+</script>
+{% endif %}
+
+</body>
+</html>

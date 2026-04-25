@@ -1,0 +1,571 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --green-deep:   #1a3d2b;
+    --green-mid:    #0B8F4D;
+    --green-light:  #d8f3dc;
+    --green-pale:   #f0faf4;
+    --cream:        #fdfcf7;
+    --white:        #ffffff;
+    --text-dark:    #1a1a1a;
+    --text-mid:     #4a5568;
+    --text-light:   #718096;
+    --border:       #e2e8f0;
+    --shadow-md:    0 8px 30px rgba(26,61,43,0.10);
+    --radius:       18px;
+    --radius-sm:    12px;
+}
+
+* { box-sizing: border-box; }
+body { font-family: 'DM Sans', sans-serif; background: var(--cream); }
+
+.checkout-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 36px 20px 80px;
+}
+
+/* BREADCRUMB */
+.ck-breadcrumb {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--text-light); margin-bottom: 32px; font-weight: 500;
+}
+.ck-breadcrumb a { color: var(--green-mid); text-decoration: none; }
+.ck-breadcrumb a:hover { color: var(--green-deep); }
+.ck-breadcrumb span { color: var(--border); }
+
+/* PAGE TITLE */
+.ck-title-block { margin-bottom: 36px; }
+.ck-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--green-light); color: var(--green-mid);
+    font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 6px 14px; border-radius: 100px; margin-bottom: 12px;
+}
+.ck-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px; font-weight: 700; color: var(--green-deep); line-height: 1.2;
+}
+
+/* STEPS INDICATOR */
+.ck-steps {
+    display: flex; align-items: center; gap: 0;
+    margin-bottom: 40px; overflow-x: auto; padding-bottom: 4px;
+}
+.ck-step {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600; color: var(--text-light);
+    padding: 8px 0; white-space: nowrap;
+}
+.ck-step.active { color: var(--green-mid); }
+.ck-step.done   { color: var(--green-deep); }
+.ck-step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--border); color: var(--text-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+    transition: all 0.3s;
+}
+.ck-step.active .ck-step-num { background: var(--green-mid); color: white; }
+.ck-step.done   .ck-step-num { background: var(--green-light); color: var(--green-deep); }
+.ck-step-sep {
+    flex: 1; min-width: 24px; height: 2px;
+    background: var(--border); margin: 0 8px;
+}
+
+/* LAYOUT */
+.ck-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 28px;
+    align-items: start;
+}
+@media (max-width: 900px) { .ck-layout { grid-template-columns: 1fr; } }
+
+/* FORM CARD */
+.ck-form-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+.ck-section-header {
+    padding: 22px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+}
+.ck-section-icon {
+    width: 38px; height: 38px;
+    background: var(--green-light);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--green-mid); font-size: 18px;
+}
+.ck-section-title {
+    font-size: 15px; font-weight: 700; color: var(--green-deep);
+}
+.ck-section-sub { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+.ck-form-body { padding: 28px; }
+
+/* FORM FIELDS */
+.ck-field { margin-bottom: 20px; }
+.ck-label {
+    display: block; font-size: 13px; font-weight: 600;
+    color: var(--text-mid); margin-bottom: 8px; letter-spacing: 0.02em;
+}
+.ck-label .required { color: var(--green-mid); margin-left: 2px; }
+.ck-input, .ck-select, .ck-textarea {
+    width: 100%; padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: var(--text-dark);
+    background: var(--white);
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+}
+.ck-input:focus, .ck-select:focus, .ck-textarea:focus {
+    border-color: var(--green-mid);
+    box-shadow: 0 0 0 3px rgba(11,143,77,0.12);
+}
+.ck-input::placeholder, .ck-textarea::placeholder { color: var(--text-light); }
+.ck-textarea { resize: vertical; min-height: 90px; }
+.ck-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23718096' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+}
+
+.ck-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+@media (max-width: 576px) { .ck-field-row { grid-template-columns: 1fr; } }
+
+/* DELIVERY METHOD */
+.delivery-options { display: flex; flex-direction: column; gap: 10px; }
+.delivery-option {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    cursor: pointer; transition: all 0.2s; position: relative;
+}
+.delivery-option:hover { border-color: var(--green-mid); background: var(--green-pale); }
+.delivery-option.selected { border-color: var(--green-mid); background: var(--green-pale); }
+.delivery-option input[type="radio"] { display: none; }
+.delivery-radio {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid var(--border); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+}
+.delivery-option.selected .delivery-radio { border-color: var(--green-mid); }
+.delivery-radio::after {
+    content: ''; width: 10px; height: 10px;
+    border-radius: 50%; background: var(--green-mid); display: none;
+}
+.delivery-option.selected .delivery-radio::after { display: block; }
+.delivery-icon { font-size: 22px; }
+.delivery-label { flex: 1; }
+.delivery-label strong { display: block; font-size: 14px; font-weight: 600; color: var(--text-dark); }
+.delivery-label small { color: var(--text-light); font-size: 12px; }
+.delivery-price { font-size: 14px; font-weight: 700; color: var(--green-mid); }
+
+/* ORDER SUMMARY CARD */
+.ck-summary-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    position: sticky;
+    top: 24px;
+}
+.ck-summary-header { padding: 22px 24px; border-bottom: 1px solid var(--border); }
+.ck-summary-title {
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light);
+}
+.ck-summary-body { padding: 24px; }
+
+/* ORDER ITEM ROW */
+.order-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.order-item:last-of-type { border-bottom: none; }
+.order-item-img {
+    width: 52px; height: 52px; border-radius: 10px;
+    object-fit: cover; border: 1px solid var(--border); flex-shrink: 0;
+}
+.order-item-placeholder {
+    width: 52px; height: 52px; border-radius: 10px;
+    background: var(--green-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+}
+.order-item-info { flex: 1; min-width: 0; }
+.order-item-name {
+    font-size: 13px; font-weight: 600; color: var(--text-dark);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.order-item-qty  { font-size: 12px; color: var(--text-light); }
+.order-item-price { font-size: 14px; font-weight: 700; color: var(--green-mid); white-space: nowrap; }
+
+.summary-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px; font-size: 14px;
+}
+.summary-label { color: var(--text-mid); font-weight: 500; }
+.summary-value { color: var(--text-dark); font-weight: 600; }
+.summary-divider { height: 1px; background: var(--border); margin: 16px 0; }
+.summary-total-row {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;
+}
+.summary-total-label { font-size: 16px; font-weight: 700; color: var(--text-dark); }
+.summary-total-value { font-size: 24px; font-weight: 900; color: var(--green-mid); }
+
+/* PLACE ORDER BUTTON */
+.place-order-btn {
+    width: 100%; padding: 16px; background: var(--green-mid); color: white;
+    border: none; border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all 0.25s;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    box-shadow: 0 4px 18px rgba(11,143,77,0.35);
+    letter-spacing: 0.02em;
+}
+.place-order-btn:hover {
+    background: var(--green-deep);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(11,143,77,0.45);
+}
+.place-order-btn:active { transform: translateY(0); }
+
+.ck-note {
+    font-size: 12px; color: var(--text-light); text-align: center;
+    margin-top: 12px; display: flex; align-items: center;
+    justify-content: center; gap: 5px;
+}
+
+.trust-row {
+    display: flex; gap: 16px; margin-top: 20px; padding-top: 20px;
+    border-top: 1px solid var(--border); flex-wrap: wrap;
+}
+.trust-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-light); }
+.trust-item i { color: var(--green-mid); }
+
+/* MESSAGES */
+.ck-messages { margin-bottom: 20px; }
+.ck-alert {
+    padding: 12px 18px; border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 500;
+    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.ck-alert-success { background: var(--green-light); color: var(--green-deep); }
+.ck-alert-warning { background: #fef3e2; color: #92400e; }
+.ck-alert-error   { background: #fff5f5; color: #e53e3e; }
+</style>
+
+<div class="checkout-wrapper">
+
+    <!-- BREADCRUMB -->
+    <nav class="ck-breadcrumb">
+        <a href="{% url 'home' %}"><i class="bi bi-house"></i> Home</a>
+        <span>/</span>
+        <a href="{% url 'cart' %}">Cart</a>
+        <span>/</span>
+        <span>Checkout</span>
+    </nav>
+
+    <!-- MESSAGES -->
+    {% if messages %}
+    <div class="ck-messages">
+        {% for message in messages %}
+        <div class="ck-alert ck-alert-{{ message.tags|default:'success' }}">
+            <i class="bi bi-info-circle-fill"></i> {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- TITLE -->
+    <div class="ck-title-block">
+        <div class="ck-tag"><i class="bi bi-bag-check"></i> Secure Checkout</div>
+        <h1 class="ck-title">Complete Your Order</h1>
+    </div>
+
+    <!-- STEPS -->
+    <div class="ck-steps">
+        <div class="ck-step done">
+            <div class="ck-step-num"><i class="bi bi-check"></i></div>
+            <span>Cart</span>
+        </div>
+        <div class="ck-step-sep"></div>
+        <div class="ck-step active">
+            <div class="ck-step-num">2</div>
+            <span>Checkout</span>
+        </div>
+        <div class="ck-step-sep"></div>
+        <div class="ck-step">
+            <div class="ck-step-num">3</div>
+            <span>Confirmation</span>
+        </div>
+    </div>
+
+    <form method="POST" action="{% url 'checkout' %}">
+        {% csrf_token %}
+
+        <div class="ck-layout">
+
+            <!-- LEFT: FORM -->
+            <div style="display:flex;flex-direction:column;gap:24px;">
+
+                <!-- CUSTOMER DETAILS -->
+                <div class="ck-form-card">
+                    <div class="ck-section-header">
+                        <div class="ck-section-icon"><i class="bi bi-person-fill"></i></div>
+                        <div>
+                            <div class="ck-section-title">Customer Details</div>
+                            <div class="ck-section-sub">Tell us who you are</div>
+                        </div>
+                    </div>
+                    <div class="ck-form-body">
+
+                        <div class="ck-field-row">
+                            <div class="ck-field">
+                                <label class="ck-label">Full Name <span class="required">*</span></label>
+                                <input type="text" name="full_name" class="ck-input"
+                                       placeholder="e.g. Chidi Okafor"
+                                       value="{{ request.user.get_full_name }}" required>
+                            </div>
+                            <div class="ck-field">
+                                <label class="ck-label">Email Address <span class="required">*</span></label>
+                                <input type="email" name="email" class="ck-input"
+                                       placeholder="you@example.com"
+                                       value="{{ request.user.email }}" required>
+                            </div>
+                        </div>
+
+                        <div class="ck-field">
+                            <label class="ck-label">Phone Number <span class="required">*</span></label>
+                            <input type="tel" name="phone" class="ck-input"
+                                   placeholder="+234 800 000 0000" required>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- SHIPPING ADDRESS -->
+                <div class="ck-form-card">
+                    <div class="ck-section-header">
+                        <div class="ck-section-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                        <div>
+                            <div class="ck-section-title">Shipping Address</div>
+                            <div class="ck-section-sub">Where should we deliver?</div>
+                        </div>
+                    </div>
+                    <div class="ck-form-body">
+
+                        <div class="ck-field">
+                            <label class="ck-label">Street Address <span class="required">*</span></label>
+                            <input type="text" name="address" class="ck-input"
+                                   placeholder="12 Adeola Odeku Street" required>
+                        </div>
+
+                        <div class="ck-field-row">
+                            <div class="ck-field">
+                                <label class="ck-label">City <span class="required">*</span></label>
+                                <input type="text" name="city" class="ck-input" placeholder="Lagos" required>
+                            </div>
+                            <div class="ck-field">
+                                <label class="ck-label">State <span class="required">*</span></label>
+                                <select name="state" class="ck-select" required>
+                                    <option value="">Select State</option>
+                                    <option>Abia</option><option>Adamawa</option><option>Akwa Ibom</option>
+                                    <option>Anambra</option><option>Bauchi</option><option>Bayelsa</option>
+                                    <option>Benue</option><option>Borno</option><option>Cross River</option>
+                                    <option>Delta</option><option>Ebonyi</option><option>Edo</option>
+                                    <option>Ekiti</option><option>Enugu</option><option>FCT Abuja</option>
+                                    <option>Gombe</option><option>Imo</option><option>Jigawa</option>
+                                    <option>Kaduna</option><option>Kano</option><option>Katsina</option>
+                                    <option>Kebbi</option><option>Kogi</option><option>Kwara</option>
+                                    <option selected>Lagos</option><option>Nasarawa</option><option>Niger</option>
+                                    <option>Ogun</option><option>Ondo</option><option>Osun</option>
+                                    <option>Oyo</option><option>Plateau</option><option>Rivers</option>
+                                    <option>Sokoto</option><option>Taraba</option><option>Yobe</option>
+                                    <option>Zamfara</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="ck-field">
+                            <label class="ck-label">Additional Notes</label>
+                            <textarea name="notes" class="ck-textarea"
+                                      placeholder="Delivery instructions, landmarks, gate codes…"></textarea>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- DELIVERY METHOD -->
+                <div class="ck-form-card">
+                    <div class="ck-section-header">
+                        <div class="ck-section-icon"><i class="bi bi-truck"></i></div>
+                        <div>
+                            <div class="ck-section-title">Delivery Method</div>
+                            <div class="ck-section-sub">Your choice updates the total automatically</div>
+                        </div>
+                    </div>
+                    <div class="ck-form-body">
+                        <div class="delivery-options">
+
+                            <label class="delivery-option selected" onclick="selectDelivery(this, 'standard')">
+                                <input type="radio" name="delivery_method" value="standard" checked>
+                                <div class="delivery-radio"></div>
+                                <div class="delivery-icon">🚚</div>
+                                <div class="delivery-label">
+                                    <strong>Standard Delivery</strong>
+                                    <small>3-5 business days · Tracked</small>
+                                </div>
+                                <div class="delivery-price">₦2,000</div>
+                            </label>
+
+                            <label class="delivery-option" onclick="selectDelivery(this, 'express')">
+                                <input type="radio" name="delivery_method" value="express">
+                                <div class="delivery-radio"></div>
+                                <div class="delivery-icon">⚡</div>
+                                <div class="delivery-label">
+                                    <strong>Express Delivery</strong>
+                                    <small>Next business day · Priority handling</small>
+                                </div>
+                                <div class="delivery-price">₦4,500</div>
+                            </label>
+
+                            <label class="delivery-option" onclick="selectDelivery(this, 'pickup')">
+                                <input type="radio" name="delivery_method" value="pickup">
+                                <div class="delivery-radio"></div>
+                                <div class="delivery-icon">🏪</div>
+                                <div class="delivery-label">
+                                    <strong>Farm Pickup</strong>
+                                    <small>Collect directly from the farmer</small>
+                                </div>
+                                <div class="delivery-price" style="color:#52b788;">Free</div>
+                            </label>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT: ORDER SUMMARY -->
+            <div class="ck-summary-card">
+                <div class="ck-summary-header">
+                    <div class="ck-summary-title">Order Summary</div>
+                </div>
+                <div class="ck-summary-body">
+
+                    {% for item in cart_items %}
+                    <div class="order-item">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="order-item-img">
+                        {% else %}
+                            <div class="order-item-placeholder">🌿</div>
+                        {% endif %}
+                        <div class="order-item-info">
+                            <div class="order-item-name">{{ item.product.name }}</div>
+                            <div class="order-item-qty">Qty: {{ item.quantity }}</div>
+                        </div>
+                        <div class="order-item-price">₦{{ item.total_price|floatformat:2|intcomma }}</div>
+                    </div>
+                    {% endfor %}
+
+                    <div style="margin-top:20px;">
+                        <div class="summary-row">
+                            <span class="summary-label">Subtotal</span>
+                            <span class="summary-value">₦{{ subtotal|floatformat:2|intcomma }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">VAT (7.5%)</span>
+                            <span class="summary-value">₦{{ tax|floatformat:2|intcomma }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Shipping</span>
+                            <!-- id so JS can update this when delivery method changes -->
+                            <span class="summary-value" id="shipping-display">₦{{ shipping|floatformat:2|intcomma }}</span>
+                        </div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-total-row">
+                            <span class="summary-total-label">Total</span>
+                            <!-- id so JS can update this when delivery method changes -->
+                            <span class="summary-total-value" id="total-display">₦{{ total|floatformat:2|intcomma }}</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="place-order-btn">
+                        <i class="bi bi-bag-check-fill"></i>
+                        Place Order
+                    </button>
+
+                    <p class="ck-note">
+                        <i class="bi bi-shield-lock"></i>
+                        Your order is protected by 256-bit SSL encryption
+                    </p>
+
+                    <div class="trust-row">
+                        <div class="trust-item"><i class="bi bi-shield-check"></i> Secure</div>
+                        <div class="trust-item"><i class="bi bi-truck"></i> Fast Delivery</div>
+                        <div class="trust-item"><i class="bi bi-arrow-counterclockwise"></i> Easy Returns</div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </form>
+
+</div>
+
+<script>
+// Shipping cost for each delivery option (must match your backend)
+const SHIPPING_COSTS = {
+    standard: 2000,
+    express:  4500,
+    pickup:   0
+};
+
+// These values come from Django and never change regardless of delivery method
+const SUBTOTAL = {{ subtotal }};
+const TAX      = {{ tax }};
+
+function formatNaira(amount) {
+    return '₦' + amount.toLocaleString('en-NG', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+function selectDelivery(label, method) {
+    // Toggle the selected class
+    document.querySelectorAll('.delivery-option').forEach(opt => opt.classList.remove('selected'));
+    label.classList.add('selected');
+    label.querySelector('input[type="radio"]').checked = true;
+
+    // Recalculate and update the summary card
+    const shipping = SHIPPING_COSTS[method] ?? 2000;
+    const total    = SUBTOTAL + TAX + shipping;
+
+    document.getElementById('shipping-display').textContent = shipping === 0 ? 'Free' : formatNaira(shipping);
+    document.getElementById('total-display').textContent    = formatNaira(total);
+}
+</script>
+
+{% endblock %}

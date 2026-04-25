@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% if purpose == 'signup' %}Verify Email{% else %}Enter Reset Code{% endif %}</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body {
+    background: #f0faf4;
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+}
+
+.otp-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px 20px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(11,143,77,0.12);
+    text-align: center;
+}
+
+.otp-boxes {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.otp-box {
+    width: 100%;
+    max-width: 45px;
+    height: 50px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 18px;
+    text-align: center;
+}
+
+@media (max-width: 400px) {
+    .otp-box {
+        height: 45px;
+        font-size: 16px;
+    }
+}
+
+.btn-verify {
+    width: 100%;
+    padding: 12px;
+    background: #0B8F4D;
+    color: white;
+    border-radius: 10px;
+    border: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="otp-card">
+
+<h5 class="mb-2">
+{% if purpose == 'signup' %}Verify Email{% else %}Enter Code{% endif %}
+</h5>
+
+<p class="small text-muted">
+Sent to <strong>{{ email }}</strong>
+</p>
+
+{% if messages %}
+{% for msg in messages %}
+<div class="alert alert-info">{{ msg }}</div>
+{% endfor %}
+{% endif %}
+
+<form method="POST" id="otpForm">
+{% csrf_token %}
+<input type="hidden" name="otp" id="otpValue">
+
+<div class="otp-boxes mb-3">
+{% for i in "123456" %}
+<input type="text" class="otp-box" maxlength="1">
+{% endfor %}
+</div>
+
+<button class="btn-verify">Verify</button>
+</form>
+
+<p class="mt-2 small">
+<a href="{% url 'resend_otp' %}?purpose={{ purpose }}">Resend code</a>
+</p>
+
+</div>
+
+<script>
+const boxes = document.querySelectorAll('.otp-box');
+
+boxes.forEach((box, i) => {
+    box.addEventListener('input', () => {
+        if (box.value && i < 5) boxes[i+1].focus();
+        update();
+    });
+
+    box.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !box.value && i > 0) {
+            boxes[i-1].focus();
+        }
+    });
+});
+
+function update(){
+    document.getElementById('otpValue').value =
+        Array.from(boxes).map(b => b.value).join('');
+}
+</script>
+
+</body>
+</html>

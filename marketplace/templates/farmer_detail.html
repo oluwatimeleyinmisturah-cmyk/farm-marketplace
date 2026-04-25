@@ -1,0 +1,664 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+    --g1: #0B8F4D;
+    --g2: #097a40;
+    --g3: #1a3d2b;
+    --g-light: #d8f3dc;
+    --g-pale: #f0faf4;
+    --gold: #f59e0b;
+    --cream: #fdfcf7;
+    --txt-1: #111827;
+    --txt-2: #4b5563;
+    --txt-3: #9ca3af;
+    --border: #e5e7eb;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(11,143,77,0.08);
+    --shadow-lg: 0 16px 60px rgba(11,143,77,0.18);
+    --ease: all 0.3s ease;
+}
+
+.fd-wrap {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 20px 80px;
+}
+
+.fd-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: var(--txt-3);
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.fd-breadcrumb a { color: var(--g1); text-decoration: none; font-weight: 500; }
+.fd-breadcrumb a:hover { color: var(--g2); }
+.fd-breadcrumb span { color: var(--border); }
+
+/* profile card */
+.fd-profile {
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+}
+
+.fd-profile::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--g1), #52b788);
+}
+
+.fd-profile-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.fd-avatar-wrap { position: relative; flex-shrink: 0; }
+
+.fd-avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--g-light);
+    display: block;
+}
+
+.fd-avatar-initials {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--g1), #52b788);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: 700;
+    color: white;
+}
+
+.fd-avatar-badge {
+    position: absolute;
+    bottom: 2px; right: 2px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--g1);
+    border: 2px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.fd-avatar-badge i { color: white; font-size: 10px; }
+
+/* name block takes all remaining width */
+.fd-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.fd-role {
+    display: inline-block;
+    background: var(--g-light);
+    color: var(--g1);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 6px;
+}
+
+.fd-name {
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--txt-1);
+    margin-bottom: 10px;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+/* contact row sits on the same line, wraps when needed */
+.fd-contact-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.fd-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: var(--txt-2);
+}
+.fd-contact-item i { color: var(--g1); font-size: 13px; flex-shrink: 0; }
+.fd-contact-item a { color: var(--txt-2); text-decoration: none; }
+.fd-contact-item a:hover { color: var(--g1); }
+
+/* bio block */
+.fd-bio-block {
+    margin-top: 4px;
+    padding: 12px 14px;
+    background: var(--g-pale);
+    border-left: 3px solid var(--g1);
+    border-radius: 0 8px 8px 0;
+}
+
+.fd-bio-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--g1);
+    margin-bottom: 4px;
+}
+
+.fd-bio-text {
+    font-size: 13.5px;
+    color: var(--txt-2);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* product count pill — right-aligned on desktop */
+.fd-stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--g-pale);
+    border: 1px solid var(--g-light);
+    color: var(--g1);
+    padding: 9px 18px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+    align-self: flex-start;
+}
+.fd-stat-pill strong { font-size: 17px; font-weight: 800; }
+
+@media (max-width: 580px) {
+    .fd-profile-top { flex-direction: column; }
+    .fd-stat-pill { align-self: flex-start; }
+}
+
+/* search bar */
+.fd-search-wrap {
+    margin-bottom: 28px;
+    display: flex;
+    gap: 10px;
+    max-width: 500px;
+}
+
+.fd-search-input {
+    flex: 1;
+    padding: 11px 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    color: var(--txt-1);
+    background: white;
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.fd-search-input:focus {
+    border-color: var(--g1);
+    box-shadow: 0 0 0 3px rgba(11,143,77,0.1);
+}
+
+.fd-search-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--g1);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+    transition: var(--ease);
+}
+.fd-search-btn:hover { background: var(--g2); transform: scale(1.05); }
+
+.fd-results-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.fd-results-label { font-size: 15px; font-weight: 600; color: var(--txt-1); }
+
+.fd-results-count {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--g1);
+    background: var(--g-light);
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+/* product grid */
+.fd-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 1024px) { .fd-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 700px)  { .fd-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; } }
+@media (max-width: 420px)  { .fd-grid { grid-template-columns: 1fr; } }
+
+.fd-product-card {
+    background: white;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    transition: var(--ease);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.fd-product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--g-light);
+}
+
+.fd-product-badge {
+    position: absolute;
+    top: 10px; left: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.fd-product-badge.new { background: #10b981; color: white; }
+.fd-product-badge.hot { background: #f59e0b; color: white; }
+
+.fd-product-img {
+    height: 175px;
+    overflow: hidden;
+}
+
+.fd-product-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.fd-product-card:hover .fd-product-img img { transform: scale(1.06); }
+
+.fd-product-img-ph {
+    width: 100%; height: 175px;
+    background: var(--g-pale);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: var(--g-light);
+}
+
+.fd-product-body {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.fd-product-category {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--g1);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 4px;
+}
+
+.fd-product-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--txt-1);
+    margin-bottom: 4px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.fd-product-name a { color: inherit; text-decoration: none; }
+.fd-product-name a:hover { color: var(--g1); }
+
+.fd-product-price {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--g1);
+    margin-bottom: 4px;
+}
+
+.fd-product-location {
+    font-size: 11px;
+    color: var(--txt-3);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.fd-product-actions {
+    display: flex;
+    gap: 7px;
+    margin-top: auto;
+}
+
+.fd-btn-view {
+    flex: 1;
+    padding: 9px 0;
+    border: 1.5px solid var(--g1);
+    background: white;
+    color: var(--g1);
+    border-radius: 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    text-decoration: none;
+    transition: var(--ease);
+}
+.fd-btn-view:hover { background: var(--g-pale); color: var(--g1); }
+
+.fd-btn-cart {
+    flex: 1;
+    padding: 9px 0;
+    background: var(--g1);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: var(--ease);
+}
+.fd-btn-cart:hover { background: var(--g2); }
+.fd-btn-cart:disabled { opacity: 0.65; cursor: not-allowed; }
+
+.fd-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--txt-3);
+}
+.fd-empty i { font-size: 48px; display: block; margin-bottom: 12px; opacity: 0.28; }
+.fd-empty h4 { font-size: 16px; font-weight: 700; color: var(--txt-2); margin-bottom: 5px; }
+.fd-empty p  { font-size: 13px; }
+
+/* toast */
+#fd-toast {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    z-index: 9999;
+    background: #1a3d2b;
+    color: white;
+    padding: 13px 18px;
+    border-radius: 14px;
+    font-size: 13.5px;
+    font-weight: 500;
+    box-shadow: 0 8px 36px rgba(0,0,0,0.28);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    max-width: 320px;
+}
+#fd-toast.show { opacity: 1; transform: translateY(0); }
+#fd-toast i { color: #52b788; font-size: 17px; flex-shrink: 0; }
+
+@media (max-width: 480px) {
+    #fd-toast { bottom: 14px; right: 12px; left: 12px; max-width: none; }
+}
+</style>
+
+<div id="fd-toast">
+    <i class="bi bi-check-circle-fill"></i>
+    <span id="fd-toast-msg"></span>
+</div>
+
+<div class="fd-wrap">
+
+    <nav class="fd-breadcrumb">
+        <a href="{% url 'home' %}"><i class="bi bi-house"></i> Home</a>
+        <span>/</span>
+        <span>Farmers</span>
+        <span>/</span>
+        <span>{{ farmer.first_name|default:farmer.username }}</span>
+    </nav>
+
+    <!-- FARMER PROFILE CARD -->
+    <div class="fd-profile">
+        <div class="fd-profile-top">
+
+            <div class="fd-avatar-wrap">
+                {% if farmer.profile.image %}
+                    <img src="{{ farmer.profile.image.url }}" class="fd-avatar" alt="{{ farmer.first_name }}">
+                {% else %}
+                    <div class="fd-avatar-initials">
+                        {{ farmer.first_name|first|upper }}{{ farmer.last_name|first|upper }}
+                    </div>
+                {% endif %}
+                <div class="fd-avatar-badge"><i class="bi bi-patch-check-fill"></i></div>
+            </div>
+
+            <div class="fd-info">
+                <div class="fd-role">Verified Farmer</div>
+                <div class="fd-name">
+                    {% if farmer.profile.farm_name %}
+                        {{ farmer.profile.farm_name }}
+                    {% else %}
+                        {{ farmer.get_full_name|default:farmer.username }}
+                    {% endif %}
+                </div>
+                <div class="fd-contact-row">
+                    {% if farmer.profile.location %}
+                    <div class="fd-contact-item">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span>{{ farmer.profile.location }}</span>
+                    </div>
+                    {% endif %}
+
+                    <div class="fd-contact-item">
+                        <i class="bi bi-envelope-fill"></i>
+                        <a href="mailto:{{ farmer.email }}">{{ farmer.email }}</a>
+                    </div>
+
+                    {% if farmer.profile.phone %}
+                    <div class="fd-contact-item">
+                        <i class="bi bi-telephone-fill"></i>
+                        <a href="tel:{{ farmer.profile.phone }}">{{ farmer.profile.phone }}</a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% if farmer.profile.bio %}
+                <div class="fd-bio-block">
+                    <div class="fd-bio-label">Bio</div>
+                    <p class="fd-bio-text">{{ farmer.profile.bio }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="fd-stat-pill">
+                <i class="bi bi-box-seam"></i>
+                <strong>{{ products|length }}</strong>
+                Product{{ products|length|pluralize }}
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="fd-search-wrap">
+        <input
+            type="text"
+            id="fdSearch"
+            class="fd-search-input"
+            placeholder="Search {{ farmer.first_name|default:farmer.username }}'s products..."
+        >
+        <button class="fd-search-btn"><i class="bi bi-search"></i></button>
+    </div>
+
+    <div class="fd-results-bar">
+        <span class="fd-results-label">
+            Products by {{ farmer.first_name|default:farmer.username }}
+        </span>
+        <span class="fd-results-count" id="fdCount">
+            {{ products|length }} product{{ products|length|pluralize }}
+        </span>
+    </div>
+
+    <!-- PRODUCT GRID -->
+    <div class="fd-grid" id="fdGrid">
+
+        {% for product in products %}
+        <div class="fd-product-card fd-item">
+
+            {% if product.is_new %}
+                <div class="fd-product-badge new">New</div>
+            {% elif product.is_hot %}
+                <div class="fd-product-badge hot">Hot</div>
+            {% endif %}
+
+            <div class="fd-product-img">
+                {% if product.image %}
+                    <a href="{% url 'product_detail' product.id %}">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    </a>
+                {% else %}
+                    <div class="fd-product-img-ph">🌿</div>
+                {% endif %}
+            </div>
+
+            <div class="fd-product-body">
+                <div class="fd-product-category">{{ product.get_category_display }}</div>
+                <div class="fd-product-name">
+                    <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a>
+                </div>
+                <div class="fd-product-price">₦{{ product.price|floatformat:2|intcomma }}</div>
+                {% if product.location %}
+                <div class="fd-product-location">
+                    <i class="bi bi-geo-alt"></i> {{ product.location }}
+                </div>
+                {% endif %}
+                <div class="fd-product-actions">
+                    <a href="{% url 'product_detail' product.id %}" class="fd-btn-view">
+                        <i class="bi bi-eye"></i> View
+                    </a>
+                    <button class="fd-btn-cart"
+                            onclick="fdAddToCart({{ product.id }}, '{{ product.name|escapejs }}', this)">
+                        <i class="bi bi-cart-plus"></i> Cart
+                    </button>
+                </div>
+            </div>
+
+        </div>
+        {% empty %}
+        <div class="fd-empty">
+            <i class="bi bi-box-seam"></i>
+            <h4>No products yet</h4>
+            <p>This farmer hasn't listed any products.</p>
+        </div>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+
+<script>
+// live search filter
+document.getElementById('fdSearch').addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    const cards = document.querySelectorAll('.fd-item');
+    let n = 0;
+    cards.forEach(c => {
+        const name = c.querySelector('.fd-product-name')?.textContent.toLowerCase() || '';
+        const cat  = c.querySelector('.fd-product-category')?.textContent.toLowerCase() || '';
+        const show = !q || name.includes(q) || cat.includes(q);
+        c.style.display = show ? '' : 'none';
+        if (show) n++;
+    });
+    document.getElementById('fdCount').textContent = n + ' product' + (n !== 1 ? 's' : '');
+});
+
+// toast
+let _toastTimer;
+function showFdToast(msg) {
+    const t = document.getElementById('fd-toast');
+    document.getElementById('fd-toast-msg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ajax cart
+function fdAddToCart(productId, productName, btn) {
+    const csrf = document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1];
+    btn.disabled = true;
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'quantity=1'
+    })
+    .then(r => r.json())
+    .then(d => showFdToast(d.success ? `"${productName}" added to cart ✓` : 'Could not add to cart.'))
+    .catch(() => showFdToast('Network error. Please try again.'))
+    .finally(() => { btn.disabled = false; btn.innerHTML = orig; });
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,493 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+    --green-deep: #1a3d2b;
+    --green-mid: #2d6a4f;
+    --green-accent: #52b788;
+    --green-light: #d8f3dc;
+    --cream: #fdfcf7;
+    --red: #e53e3e;
+    --text-dark: #1a1a1a;
+    --text-mid: #4a5568;
+    --text-light: #718096;
+    --border: #e2e8f0;
+    --white: #ffffff;
+    --shadow-md: 0 8px 30px rgba(26,61,43,0.12);
+    --radius: 16px;
+    --radius-sm: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    min-height: 100vh;
+}
+
+.ap-wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+}
+
+.ap-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 32px;
+    font-weight: 500;
+}
+.ap-breadcrumb a { color: var(--green-mid); text-decoration: none; }
+.ap-breadcrumb a:hover { color: var(--green-deep); }
+.ap-breadcrumb span { color: var(--border); }
+
+.ap-header { margin-bottom: 36px; }
+.ap-header-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--green-light); color: var(--green-mid);
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 6px 14px; border-radius: 100px; margin-bottom: 14px;
+}
+.ap-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px; font-weight: 700; color: var(--green-deep); line-height: 1.2; margin-bottom: 8px;
+}
+.ap-subtitle { color: var(--text-mid); font-size: 15px; }
+
+.ap-card { background: var(--white); border-radius: 24px; box-shadow: var(--shadow-md); overflow: hidden; }
+
+.ap-section { padding: 32px 36px; border-bottom: 1px solid var(--border); }
+
+.ap-section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-light); margin-bottom: 24px;
+}
+.ap-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.ap-section-label i { color: var(--green-accent); font-size: 14px; }
+
+.ap-grid { display: grid; gap: 20px; }
+.ap-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+@media (max-width: 640px) {
+    .ap-grid-3 { grid-template-columns: 1fr; }
+    .ap-section { padding: 24px 20px; }
+    .ap-title { font-size: 26px; }
+    .ap-actions { flex-direction: column !important; }
+}
+
+.ap-field { display: flex; flex-direction: column; gap: 7px; }
+.ap-label { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+.ap-label .req { color: var(--red); }
+
+.ap-input, .ap-textarea {
+    width: 100%; padding: 12px 16px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text-dark);
+    background: var(--cream); transition: all 0.2s; outline: none;
+}
+.ap-input:focus, .ap-textarea:focus {
+    border-color: var(--green-accent); background: var(--white);
+    box-shadow: 0 0 0 3px rgba(82,183,136,0.15);
+}
+.ap-input::placeholder, .ap-textarea::placeholder { color: var(--text-light); }
+.ap-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+.ap-input-group { position: relative; display: flex; align-items: center; }
+.ap-input-prefix {
+    position: absolute; left: 14px; font-weight: 700;
+    color: var(--green-mid); font-size: 15px; pointer-events: none; z-index: 1;
+}
+.ap-input-group .ap-input { padding-left: 30px; }
+.ap-hint { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+.ap-char-count { font-size: 11px; color: var(--text-light); text-align: right; }
+
+/* CATEGORY GRID — radio inputs placed BEFORE their labels so :checked + label works */
+.ap-category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+}
+.ap-cat-radio { display: none; }
+.ap-cat-label {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 14px 10px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    cursor: pointer; transition: all 0.2s; background: var(--cream); text-align: center;
+}
+.ap-cat-label:hover { border-color: var(--green-accent); background: var(--green-light); }
+.ap-cat-radio:checked + .ap-cat-label {
+    border-color: var(--green-mid); background: var(--green-light);
+}
+.ap-cat-emoji { font-size: 24px; }
+.ap-cat-name { font-size: 10px; font-weight: 600; color: var(--text-dark); line-height: 1.3; }
+.ap-cat-radio:checked + .ap-cat-label .ap-cat-name { color: var(--green-deep); }
+
+/* IMAGE UPLOAD */
+.ap-image-upload {
+    border: 2px dashed var(--border); border-radius: var(--radius);
+    padding: 32px 24px; text-align: center; cursor: pointer;
+    transition: all 0.3s; background: var(--cream); position: relative;
+}
+.ap-image-upload:hover, .ap-image-upload.drag-over {
+    border-color: var(--green-accent); background: var(--green-light);
+}
+.ap-image-upload input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.ap-upload-icon {
+    width: 56px; height: 56px; border-radius: 50%; background: var(--green-light);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;
+}
+.ap-upload-icon i { font-size: 22px; color: var(--green-mid); }
+.ap-upload-title { font-weight: 600; color: var(--text-dark); font-size: 15px; margin-bottom: 4px; }
+.ap-upload-sub { font-size: 12px; color: var(--text-light); }
+.ap-upload-sub b { color: var(--green-mid); }
+
+.ap-preview-wrap {
+    display: none; position: relative; margin-top: 16px;
+    border-radius: var(--radius-sm); overflow: hidden; border: 2px solid var(--green-light);
+}
+.ap-preview-wrap.show { display: block; }
+.ap-preview-img { width: 100%; max-height: 260px; object-fit: cover; display: block; }
+.ap-preview-remove {
+    position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6);
+    color: white; border: none; border-radius: 50%; width: 32px; height: 32px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.ap-preview-remove:hover { background: var(--red); }
+
+/* BADGES */
+.ap-badges { display: flex; gap: 12px; flex-wrap: wrap; }
+.ap-badge-toggle {
+    display: flex; align-items: center; gap: 10px; padding: 12px 18px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    cursor: pointer; transition: all 0.2s; background: var(--cream);
+    flex: 1; min-width: 150px; user-select: none;
+}
+.ap-badge-toggle:hover { border-color: var(--green-accent); }
+.ap-badge-toggle.checked { border-color: var(--green-mid); background: var(--green-light); }
+.ap-badge-toggle input[type="checkbox"] { display: none; }
+.ap-badge-dot {
+    width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;
+}
+.ap-badge-toggle.checked .ap-badge-dot { background: var(--green-mid); border-color: var(--green-mid); }
+.ap-badge-dot i { font-size: 10px; color: white; display: none; }
+.ap-badge-toggle.checked .ap-badge-dot i { display: block; }
+.ap-badge-title { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+.ap-badge-desc { font-size: 11px; color: var(--text-light); margin-top: 1px; }
+
+/* ACTIONS */
+.ap-actions {
+    padding: 28px 36px; background: var(--cream);
+    display: flex; align-items: center; gap: 14px;
+    justify-content: flex-end; border-top: 1px solid var(--border);
+}
+.ap-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 28px; border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.25s; border: none; text-decoration: none;
+}
+.ap-btn-primary { background: var(--green-mid); color: white; box-shadow: 0 4px 14px rgba(45,106,79,0.3); }
+.ap-btn-primary:hover { background: var(--green-deep); transform: translateY(-1px); }
+.ap-btn-ghost { background: transparent; color: var(--text-mid); border: 1.5px solid var(--border); }
+.ap-btn-ghost:hover { background: var(--white); border-color: var(--text-mid); }
+</style>
+
+<div class="ap-wrapper">
+
+    <nav class="ap-breadcrumb">
+        <a href="{% url 'farmer_dashboard' %}"><i class="bi bi-house"></i> Dashboard</a>
+        <span>/</span>
+        <span>Add Product</span>
+    </nav>
+
+    <div class="ap-header">
+        <div class="ap-header-tag"><i class="bi bi-plus-circle"></i> New Listing</div>
+        <h1 class="ap-title">List Your Product</h1>
+        <p class="ap-subtitle">Fill in the details below to add your product to the marketplace.</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" id="addProductForm">
+        {% csrf_token %}
+        <!-- Hidden field receives the selected category value via JS -->
+        <input type="hidden" name="category" id="categoryValue">
+
+        <div class="ap-card">
+
+            <!-- BASIC INFO -->
+            <div class="ap-section">
+                <div class="ap-section-label"><i class="bi bi-info-circle"></i> Basic Information</div>
+                <div class="ap-grid">
+                    <div class="ap-field">
+                        <label class="ap-label" for="name">Product Name <span class="req">*</span></label>
+                        <input type="text" class="ap-input" name="name" id="name"
+                               placeholder="e.g. Fresh Organic Tomatoes" required maxlength="200">
+                    </div>
+                    <div class="ap-field">
+                        <label class="ap-label" for="description">
+                            Description
+                            <span class="ap-char-count" id="descCount" style="margin-left:auto;font-weight:400">0 / 500</span>
+                        </label>
+                        <textarea class="ap-textarea" name="description" id="description"
+                                  placeholder="Describe your product — quality, origin, how it's grown..."
+                                  maxlength="500"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CATEGORY -->
+            <div class="ap-section">
+                <div class="ap-section-label">
+                    <i class="bi bi-grid"></i> Category <span class="req" style="font-style:normal">*</span>
+                </div>
+
+                <!-- Each radio MUST come immediately before its label for :checked + label CSS to work -->
+                <div class="ap-category-grid">
+
+                    <input class="ap-cat-radio" type="radio" name="cat_display" id="cat_grain"
+                           value="grain&cereal" onchange="setCat(this.value)">
+                    <label class="ap-cat-label" for="cat_grain">
+                        <span class="ap-cat-emoji">🌾</span>
+                        <span class="ap-cat-name">Grain & Cereal</span>
+                    </label>
+
+                    <input class="ap-cat-radio" type="radio" name="cat_display" id="cat_tuber"
+                           value="tuber" onchange="setCat(this.value)">
+                    <label class="ap-cat-label" for="cat_tuber">
+                        <span class="ap-cat-emoji">🥔</span>
+                        <span class="ap-cat-name">Tuber</span>
+                    </label>
+
+                    <input class="ap-cat-radio" type="radio" name="cat_display" id="cat_vegetable"
+                           value="vegetable" onchange="setCat(this.value)">
+                    <label class="ap-cat-label" for="cat_vegetable">
+                        <span class="ap-cat-emoji">🥦</span>
+                        <span class="ap-cat-name">Vegetable</span>
+                    </label>
+
+                    <input class="ap-cat-radio" type="radio" name="cat_display" id="cat_fruit"
+                           value="fruit" onchange="setCat(this.value)">
+                    <label class="ap-cat-label" for="cat_fruit">
+                        <span class="ap-cat-emoji">🍎</span>
+                        <span class="ap-cat-name">Fruit</span>
+                    </label>
+
+                    <input class="ap-cat-radio" type="radio" name="cat_display" id="cat_livestock"
+                           value="livestock" onchange="setCat(this.value)">
+                    <label class="ap-cat-label" for="cat_livestock">
+                        <span class="ap-cat-emoji">🐄</span>
+                        <span class="ap-cat-name">Livestock</span>
+                    </label>
+
+                    <input class="ap-cat-radio" type="radio" name="cat_display" id="cat_seafood"
+                           value="seafood" onchange="setCat(this.value)">
+                    <label class="ap-cat-label" for="cat_seafood">
+                        <span class="ap-cat-emoji">🐟</span>
+                        <span class="ap-cat-name">Seafood</span>
+                    </label>
+
+                    <input class="ap-cat-radio" type="radio" name="cat_display" id="cat_dairy"
+                           value="dairy&egg" onchange="setCat(this.value)">
+                    <label class="ap-cat-label" for="cat_dairy">
+                        <span class="ap-cat-emoji">🥚</span>
+                        <span class="ap-cat-name">Dairy & Egg</span>
+                    </label>
+
+                    <input class="ap-cat-radio" type="radio" name="cat_display" id="cat_supplies"
+                           value="farmsupplies&inputs" onchange="setCat(this.value)">
+                    <label class="ap-cat-label" for="cat_supplies">
+                        <span class="ap-cat-emoji">🧰</span>
+                        <span class="ap-cat-name">Farm Supplies & Inputs</span>
+                    </label>
+
+                    <input class="ap-cat-radio" type="radio" name="cat_display" id="cat_organic"
+                           value="organic&specialtyproducts" onchange="setCat(this.value)">
+                    <label class="ap-cat-label" for="cat_organic">
+                        <span class="ap-cat-emoji">🌿</span>
+                        <span class="ap-cat-name">Organic & Specialty</span>
+                    </label>
+
+                    <input class="ap-cat-radio" type="radio" name="cat_display" id="cat_snacks"
+                           value="snacks&processedfoods" onchange="setCat(this.value)">
+                    <label class="ap-cat-label" for="cat_snacks">
+                        <span class="ap-cat-emoji">🍘</span>
+                        <span class="ap-cat-name">Snacks & Processed</span>
+                    </label>
+
+                    <input class="ap-cat-radio" type="radio" name="cat_display" id="cat_equipment"
+                           value="farmservices&equipment" onchange="setCat(this.value)">
+                    <label class="ap-cat-label" for="cat_equipment">
+                        <span class="ap-cat-emoji">🚜</span>
+                        <span class="ap-cat-name">Farm Services & Equipment</span>
+                    </label>
+
+                    <input class="ap-cat-radio" type="radio" name="cat_display" id="cat_beverages"
+                           value="beverages" onchange="setCat(this.value)">
+                    <label class="ap-cat-label" for="cat_beverages">
+                        <span class="ap-cat-emoji">🍶</span>
+                        <span class="ap-cat-name">Beverages</span>
+                    </label>
+
+                </div>
+                <p class="ap-hint" style="margin-top:12px">
+                    <i class="bi bi-info-circle"></i> Select the category that best matches your product.
+                </p>
+            </div>
+
+            <!-- PRICING & STOCK -->
+            <div class="ap-section">
+                <div class="ap-section-label"><i class="bi bi-tag"></i> Pricing & Stock</div>
+                <div class="ap-grid ap-grid-3">
+                    <div class="ap-field">
+                        <label class="ap-label" for="price">Price (₦) <span class="req">*</span></label>
+                        <div class="ap-input-group">
+                            <span class="ap-input-prefix">₦</span>
+                            <input type="number" step="0.01" min="0" class="ap-input"
+                                   name="price" id="price" placeholder="0.00" required>
+                        </div>
+                    </div>
+                    <div class="ap-field">
+                        <label class="ap-label" for="quantity">Quantity Available <span class="req">*</span></label>
+                        <input type="number" min="1" class="ap-input"
+                               name="quantity" id="quantity" placeholder="e.g. 50" required>
+                    </div>
+                    <div class="ap-field">
+                        <label class="ap-label" for="location">Location <span class="req">*</span></label>
+                        <input type="text" class="ap-input"
+                               name="location" id="location" placeholder="e.g. Kano, Nigeria" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IMAGE -->
+            <div class="ap-section">
+                <div class="ap-section-label"><i class="bi bi-image"></i> Product Image</div>
+                <div class="ap-image-upload" id="dropZone">
+                    <input type="file" name="image" id="imageInput" accept="image/*"
+                           onchange="previewImage(event)">
+                    <div class="ap-upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+                    <div class="ap-upload-title">
+                        Drop your image here or <span style="color:var(--green-mid)">browse</span>
+                    </div>
+                    <div class="ap-upload-sub">
+                        Supports <b>JPG, PNG, WEBP</b> · Max 5MB · Clear images attract more buyers
+                    </div>
+                </div>
+                <div class="ap-preview-wrap" id="previewWrap">
+                    <img src="" alt="Preview" class="ap-preview-img" id="previewImg">
+                    <button type="button" class="ap-preview-remove" onclick="removeImage()">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- BADGES -->
+            <div class="ap-section">
+                <div class="ap-section-label"><i class="bi bi-award"></i> Product Badges</div>
+                <div class="ap-badges">
+                    <div class="ap-badge-toggle" onclick="toggleBadge(this, 'isNew')">
+                        <input type="checkbox" name="is_new" id="isNew">
+                        <div class="ap-badge-dot"><i class="bi bi-check"></i></div>
+                        <div>
+                            <div class="ap-badge-title">🆕 New Product</div>
+                            <div class="ap-badge-desc">Recently added to your farm</div>
+                        </div>
+                    </div>
+                    <div class="ap-badge-toggle" onclick="toggleBadge(this, 'isHot')">
+                        <input type="checkbox" name="is_hot" id="isHot">
+                        <div class="ap-badge-dot"><i class="bi bi-check"></i></div>
+                        <div>
+                            <div class="ap-badge-title">🔥 Popular / Hot</div>
+                            <div class="ap-badge-desc">High demand product</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="ap-actions">
+                <a href="{% url 'farmer_dashboard' %}" class="ap-btn ap-btn-ghost">
+                    <i class="bi bi-arrow-left"></i> Cancel
+                </a>
+                <button type="submit" class="ap-btn ap-btn-primary">
+                    <i class="bi bi-check-circle"></i> Add Product
+                </button>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<script>
+function setCat(val) {
+    document.getElementById('categoryValue').value = val;
+}
+
+document.getElementById('description').addEventListener('input', function () {
+    document.getElementById('descCount').textContent = this.value.length + ' / 500';
+});
+
+function previewImage(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (ev) {
+        document.getElementById('previewImg').src = ev.target.result;
+        document.getElementById('previewWrap').classList.add('show');
+        document.getElementById('dropZone').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeImage() {
+    document.getElementById('imageInput').value = '';
+    document.getElementById('previewWrap').classList.remove('show');
+    document.getElementById('dropZone').style.display = 'block';
+}
+
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', function (e) {
+    e.preventDefault(); dropZone.classList.add('drag-over');
+});
+dropZone.addEventListener('dragleave', function () {
+    dropZone.classList.remove('drag-over');
+});
+dropZone.addEventListener('drop', function (e) {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        document.getElementById('imageInput').files = dt.files;
+        previewImage({ target: { files: [file] } });
+    }
+});
+
+function toggleBadge(el, cbId) {
+    el.classList.toggle('checked');
+    document.getElementById(cbId).checked = el.classList.contains('checked');
+}
+
+document.getElementById('addProductForm').addEventListener('submit', function (e) {
+    if (!document.getElementById('categoryValue').value) {
+        e.preventDefault();
+        alert('Please select a category for your product.');
+        document.querySelector('.ap-category-grid').scrollIntoView({ behavior: 'smooth' });
+    }
+});
+</script>
+
+{% endblock %}

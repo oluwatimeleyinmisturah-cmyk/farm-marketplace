@@ -1,0 +1,722 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --g1:#0B8F4D; --g2:#097a40; --g3:#1a3d2b;
+  --g-light:#d8f3dc; --g-pale:#f0faf4;
+  --slate:#f8fafc; --white:#ffffff; --border:#e2e8f0;
+  --txt-1:#111827; --txt-2:#4b5563; --txt-3:#9ca3af;
+  --amber:#f59e0b; --amber-bg:#fffbeb;
+  --blue:#3b82f6;  --blue-bg:#eff6ff;
+  --red:#ef4444;   --red-bg:#fef2f2;
+  --grey:#64748b;  --grey-bg:#f1f5f9;
+  --radius:12px; --radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.05);
+  --shadow-md:0 4px 20px rgba(11,143,77,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+.bp-wrap{
+  font-family:'Sora',sans-serif;
+  max-width:960px;margin:0 auto;
+  padding:20px 16px 80px;
+  color:var(--txt-1);
+  width:100%;overflow-x:hidden;
+}
+
+.bp-msg{padding:12px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;margin-bottom:16px;width:100%;}
+.bp-msg-success{background:var(--g-light);color:var(--g3);}
+.bp-msg-error{background:var(--red-bg);color:var(--red);}
+
+.bp-breadcrumb{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px;color:var(--txt-3);margin-bottom:20px;}
+.bp-breadcrumb a{color:var(--g1);text-decoration:none;font-weight:500;}
+.bp-breadcrumb a:hover{color:var(--g2);}
+.bp-breadcrumb span{color:var(--border);}
+
+.bp-header-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 16px 18px;margin-bottom:18px;position:relative;overflow:hidden;width:100%;}
+.bp-header-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--g1),#52b788);}
+
+.bp-header-inner{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;width:100%;}
+@media(min-width:520px){
+  .bp-header-inner{flex-direction:row;align-items:center;text-align:left;gap:16px;}
+  .bp-identity{flex:1;min-width:0;}
+}
+
+.bp-avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid var(--g-light);display:block;flex-shrink:0;}
+.bp-avatar-initials{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#6366f1);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;flex-shrink:0;}
+
+.bp-identity{min-width:0;width:100%;}
+.bp-role-tag{display:inline-block;background:var(--blue-bg);color:var(--blue);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:6px;}
+.bp-name{font-size:18px;font-weight:700;color:var(--txt-1);margin-bottom:6px;line-height:1.3;word-break:break-word;overflow-wrap:anywhere;}
+
+.bp-meta-row{display:flex;flex-direction:column;gap:5px;width:100%;}
+@media(min-width:520px){.bp-meta-row{flex-direction:row;flex-wrap:wrap;gap:10px;}}
+.bp-meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--txt-2);min-width:0;}
+.bp-meta-item i{color:var(--g1);font-size:12px;flex-shrink:0;}
+.bp-meta-item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100vw - 90px);}
+@media(min-width:520px){.bp-meta-item span{max-width:220px;}}
+
+.bp-edit-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;background:var(--g-pale);color:var(--g1);border:1.5px solid var(--g-light);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:all .2s;white-space:nowrap;flex-shrink:0;}
+.bp-edit-btn:hover{background:var(--g1);color:#fff;border-color:var(--g1);}
+@media(max-width:519px){.bp-edit-btn{width:100%;justify-content:center;}}
+
+.bp-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;width:100%;}
+@media(max-width:380px){.bp-stats{grid-template-columns:1fr;}}
+.bp-stat{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 12px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;min-width:0;}
+.bp-stat-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.bp-stat-icon.green{background:var(--g-light);color:var(--g1);}
+.bp-stat-icon.amber{background:var(--amber-bg);color:var(--amber);}
+.bp-stat-icon.blue{background:var(--blue-bg);color:var(--blue);}
+.bp-stat-val{font-size:19px;font-weight:700;color:var(--txt-1);line-height:1;}
+.bp-stat-lbl{font-size:10px;color:var(--txt-3);font-weight:500;margin-top:2px;text-transform:uppercase;letter-spacing:.05em;}
+
+.bp-tabs-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-bottom:16px;width:100%;}
+.bp-tabs-wrap::-webkit-scrollbar{display:none;}
+.bp-tabs{display:flex;gap:3px;background:var(--slate);border-radius:var(--radius-sm);padding:4px;width:max-content;min-width:100%;}
+.bp-tab{padding:8px 13px;border-radius:7px;font-size:12px;font-weight:600;color:var(--txt-3);cursor:pointer;border:none;background:transparent;font-family:'Sora',sans-serif;transition:all .2s;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
+.bp-tab.active{background:var(--white);color:var(--txt-1);box-shadow:0 1px 4px rgba(0,0,0,.10);}
+.bp-tab-badge{font-size:10px;font-weight:700;padding:1px 5px;border-radius:8px;min-width:16px;text-align:center;color:#fff;}
+.bp-tab-badge.green{background:var(--g1);}
+.bp-tab-badge.amber{background:var(--amber);}
+.bp-tab-badge.blue{background:var(--blue);}
+.bp-tab-badge.red{background:var(--red);}
+.bp-tab-badge.grey{background:var(--grey);}
+
+.bp-panel{display:none;}
+.bp-panel.active{display:block;}
+
+.bp-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:18px;width:100%;}
+.bp-card-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.bp-card-title{font-size:13px;font-weight:700;color:var(--txt-1);display:flex;align-items:center;gap:7px;}
+.bp-card-title i{color:var(--g1);}
+.bp-card-count{font-size:11px;font-weight:600;color:var(--txt-3);background:var(--slate);padding:3px 9px;border-radius:16px;}
+
+.bp-order-card{padding:14px 16px;border-bottom:1px solid var(--border);transition:background .15s;width:100%;}
+.bp-order-card:last-child{border-bottom:none;}
+.bp-order-card:hover{background:var(--slate);}
+.bp-order-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.bp-order-id{font-size:13px;font-weight:700;color:var(--txt-1);margin-bottom:2px;}
+.bp-order-date{font-size:11px;color:var(--txt-3);}
+.bp-order-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.bp-order-total{font-size:15px;font-weight:700;color:var(--g1);}
+
+.bp-status{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:16px;text-transform:uppercase;white-space:nowrap;}
+.bp-status-pending{background:var(--amber-bg);color:var(--amber);}
+.bp-status-sent_out{background:var(--blue-bg);color:var(--blue);}
+.bp-status-delivered{background:var(--g-light);color:var(--g1);}
+.bp-status-completed{background:var(--g-light);color:var(--g1);}
+.bp-status-rejected{background:var(--red-bg);color:var(--red);}
+.bp-status-cancelled{background:var(--grey-bg);color:var(--grey);}
+.bp-status-sent_out::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+
+.bp-order-items{display:flex;flex-direction:column;gap:7px;margin-top:8px;}
+.bp-order-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--slate);border-radius:var(--radius-sm);border:1px solid var(--border);min-width:0;}
+.bp-item-img{width:40px;height:40px;border-radius:7px;object-fit:cover;border:1px solid var(--border);flex-shrink:0;}
+.bp-item-ph{width:40px;height:40px;border-radius:7px;background:var(--g-light);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;color:var(--g1);}
+.bp-item-info{flex:1;min-width:0;}
+.bp-item-name{font-size:12px;font-weight:600;color:var(--txt-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bp-item-qty{font-size:11px;color:var(--txt-3);margin-top:1px;}
+.bp-item-price{font-size:12px;font-weight:700;color:var(--g1);white-space:nowrap;flex-shrink:0;}
+
+.bp-order-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.bp-confirm-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;background:var(--g1);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(11,143,77,.25);}
+.bp-confirm-btn:hover{background:var(--g2);}
+.bp-cancel-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;background:var(--red-bg);color:var(--red);border:1.5px solid #fecaca;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.bp-cancel-btn:hover{background:var(--red);color:#fff;border-color:var(--red);}
+
+.bp-tracking{display:flex;align-items:center;margin-top:10px;padding:12px 13px;background:var(--blue-bg);border-radius:var(--radius-sm);border:1px solid #dbeafe;overflow-x:auto;}
+.bp-track-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;min-width:52px;}
+.bp-track-step:not(:last-child)::after{content:'';position:absolute;top:13px;left:50%;right:-50%;height:2px;background:#bfdbfe;z-index:0;}
+.bp-track-step.done::after{background:var(--blue);}
+.bp-track-dot{width:26px;height:26px;border-radius:50%;background:#dbeafe;border:2px solid #bfdbfe;display:flex;align-items:center;justify-content:center;font-size:11px;color:#93c5fd;z-index:1;transition:all .3s;}
+.bp-track-step.done .bp-track-dot{background:var(--blue);border-color:var(--blue);color:#fff;}
+.bp-track-step.active .bp-track-dot{background:#fff;border-color:var(--blue);color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.15);}
+.bp-track-label{font-size:9px;font-weight:600;color:#93c5fd;margin-top:5px;text-align:center;text-transform:uppercase;letter-spacing:.04em;}
+.bp-track-step.done .bp-track-label,.bp-track-step.active .bp-track-label{color:var(--blue);}
+
+.bp-empty{padding:36px 18px;text-align:center;color:var(--txt-3);font-size:13px;}
+.bp-empty i{font-size:28px;display:block;margin-bottom:8px;opacity:.32;}
+
+/* cancel modal */
+.bp-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;display:none;align-items:flex-end;justify-content:center;padding:0;}
+@media(min-width:520px){.bp-modal-overlay{align-items:center;padding:20px;}}
+.bp-modal-overlay.open{display:flex;}
+.bp-modal{background:var(--white);border-radius:var(--radius) var(--radius) 0 0;width:100%;box-shadow:0 -4px 40px rgba(0,0,0,.18);animation:slideUp .25s ease;overflow:hidden;}
+@media(min-width:520px){.bp-modal{border-radius:var(--radius);max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.2);}}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.bp-modal-body-inner{padding:20px;}
+.bp-modal-icon{width:42px;height:42px;border-radius:11px;background:var(--red-bg);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:12px;}
+.bp-modal-title{font-size:15px;font-weight:700;color:var(--txt-1);margin-bottom:5px;}
+.bp-modal-msg{font-size:13px;color:var(--txt-2);line-height:1.55;}
+.bp-modal-order-num{display:inline-block;font-weight:700;color:var(--txt-1);background:var(--slate);padding:4px 9px;border-radius:6px;margin-top:6px;font-size:13px;}
+.bp-modal-foot{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;}
+.bp-modal-cancel{padding:10px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--white);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:var(--txt-2);cursor:pointer;}
+.bp-modal-confirm{padding:10px 16px;background:var(--red);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.bp-modal-confirm:hover{background:#dc2626;}
+@media(max-width:360px){.bp-modal-cancel,.bp-modal-confirm{flex:1;text-align:center;}}
+
+/* ── EDIT PROFILE MODAL — FIXED ── */
+.ep-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 5000;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  /* overlay scrolls if content is too tall on very short screens */
+  overflow-y: auto;
+}
+@media (min-width: 520px) {
+  .ep-modal-overlay {
+    align-items: center;
+    padding: 16px;
+  }
+}
+.ep-modal-overlay.open { display: flex; }
+
+.ep-modal {
+  background: var(--white);
+  border-radius: var(--radius) var(--radius) 0 0;
+  width: 100%;
+  /* Critical: cap height and let the body scroll */
+  max-height: 92dvh;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -4px 40px rgba(0,0,0,.2);
+  animation: slideUp .28s ease;
+  /* Do NOT put overflow:hidden here — it clips the body */
+}
+@media (min-width: 520px) {
+  .ep-modal {
+    border-radius: var(--radius);
+    max-width: 500px;
+    max-height: 88dvh;
+    max-height: 88vh;
+    box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    /* Stop modal from growing to fill entire overlay */
+    margin: auto;
+  }
+}
+
+.ep-modal-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0; /* never compress the header */
+  background: var(--white);
+  border-radius: inherit;
+}
+.ep-modal-head h3 { font-size: 15px; font-weight: 700; }
+
+.ep-modal-close {
+  width: 30px; height: 30px;
+  border-radius: 7px; border: none;
+  background: var(--slate); color: var(--txt-2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.ep-modal-close:hover { background: var(--border); }
+
+/* THIS is the key fix: body takes remaining space and scrolls */
+.ep-modal-body {
+  padding: 18px 20px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0; /* critical for flex scroll to work */
+}
+
+.ep-field { margin-bottom: 14px; }
+.ep-label { display: block; font-size: 11px; font-weight: 600; color: var(--txt-2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+.ep-input, .ep-textarea { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: 'Sora', sans-serif; font-size: 14px; color: var(--txt-1); background: var(--white); outline: none; transition: border-color .2s, box-shadow .2s; }
+.ep-input:focus, .ep-textarea:focus { border-color: var(--g1); box-shadow: 0 0 0 3px rgba(11,143,77,.10); }
+.ep-textarea { resize: vertical; min-height: 70px; }
+.ep-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 420px) { .ep-field-row { grid-template-columns: 1fr; } }
+
+.ep-modal-foot {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-shrink: 0; /* never compress the footer */
+  background: var(--white);
+}
+.ep-btn-cancel { padding: 10px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--white); font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; color: var(--txt-2); cursor: pointer; }
+.ep-btn-save { padding: 10px 18px; background: var(--g1); color: #fff; border: none; border-radius: var(--radius-sm); font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+.ep-btn-save:hover { background: var(--g2); }
+@media (max-width: 360px) { .ep-btn-cancel, .ep-btn-save { flex: 1; text-align: center; } }
+</style>
+
+<div class="bp-wrap">
+
+  {% if messages %}
+    {% for msg in messages %}
+    <div class="bp-msg bp-msg-{{ msg.tags|default:'success' }}">
+      <i class="bi bi-{% if msg.tags == 'error' %}x-circle{% else %}check-circle{% endif %}-fill"></i>
+      {{ msg }}
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <nav class="bp-breadcrumb">
+    <a href="{% url 'home' %}">Home</a>
+    <span>/</span>
+    <span>My Account</span>
+  </nav>
+
+  <div class="bp-header-card">
+    <div class="bp-header-inner">
+      {% if profile and profile.image %}
+        <img src="{{ profile.image.url }}" class="bp-avatar" alt="Profile">
+      {% else %}
+        <div class="bp-avatar-initials">
+          {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+        </div>
+      {% endif %}
+      <div class="bp-identity">
+        <div class="bp-role-tag">Buyer</div>
+        <div class="bp-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+        <div class="bp-meta-row">
+          <div class="bp-meta-item"><i class="bi bi-person"></i><span>@{{ request.user.username }}</span></div>
+          <div class="bp-meta-item"><i class="bi bi-envelope"></i><span>{{ request.user.email|default:"No email set" }}</span></div>
+          {% if profile and profile.phone %}
+          <div class="bp-meta-item"><i class="bi bi-telephone"></i><span>{{ profile.phone }}</span></div>
+          {% endif %}
+          {% if profile and profile.address %}
+          <div class="bp-meta-item"><i class="bi bi-geo-alt"></i><span>{{ profile.address }}</span></div>
+          {% endif %}
+        </div>
+      </div>
+      <button class="bp-edit-btn" onclick="openEditModal()">
+        <i class="bi bi-pencil"></i> Edit Profile
+      </button>
+    </div>
+  </div>
+
+  <div class="bp-stats">
+    <div class="bp-stat">
+      <div class="bp-stat-icon blue"><i class="bi bi-bag"></i></div>
+      <div><div class="bp-stat-val">{{ orders|length }}</div><div class="bp-stat-lbl">Total</div></div>
+    </div>
+    <div class="bp-stat">
+      <div class="bp-stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
+      <div><div class="bp-stat-val">{{ pending_orders|length }}</div><div class="bp-stat-lbl">Pending</div></div>
+    </div>
+    <div class="bp-stat">
+      <div class="bp-stat-icon green"><i class="bi bi-check-circle"></i></div>
+      <div><div class="bp-stat-val">{{ completed_orders|length }}</div><div class="bp-stat-lbl">Done</div></div>
+    </div>
+  </div>
+
+  <div class="bp-tabs-wrap">
+    <div class="bp-tabs">
+      <button class="bp-tab active" onclick="switchTab('all',this)">
+        <i class="bi bi-list-ul"></i> All
+        {% if orders %}<span class="bp-tab-badge blue">{{ orders|length }}</span>{% endif %}
+      </button>
+      <button class="bp-tab" onclick="switchTab('pending',this)">
+        <i class="bi bi-hourglass"></i> Pending
+        {% if pending_orders %}<span class="bp-tab-badge amber">{{ pending_orders|length }}</span>{% endif %}
+      </button>
+      <button class="bp-tab" onclick="switchTab('active',this)">
+        <i class="bi bi-truck"></i> Active
+        {% if sent_orders %}<span class="bp-tab-badge blue">{{ sent_orders|length }}</span>{% endif %}
+      </button>
+      <button class="bp-tab" onclick="switchTab('completed',this)">
+        <i class="bi bi-check-circle"></i> Completed
+        {% if completed_orders %}<span class="bp-tab-badge green">{{ completed_orders|length }}</span>{% endif %}
+      </button>
+      <button class="bp-tab" onclick="switchTab('rejected',this)">
+        <i class="bi bi-x-circle"></i> Rejected
+        {% if rejected_orders %}<span class="bp-tab-badge red">{{ rejected_orders|length }}</span>{% endif %}
+      </button>
+      <button class="bp-tab" onclick="switchTab('cancelled',this)">
+        <i class="bi bi-slash-circle"></i> Cancelled
+        {% if cancelled_orders %}<span class="bp-tab-badge grey">{{ cancelled_orders|length }}</span>{% endif %}
+      </button>
+    </div>
+  </div>
+
+  <!-- ALL -->
+  <div class="bp-panel active" id="panel-all">
+    <div class="bp-card">
+      <div class="bp-card-header">
+        <div class="bp-card-title"><i class="bi bi-receipt"></i> Order History</div>
+        <span class="bp-card-count">{{ orders|length }} order{{ orders|length|pluralize }}</span>
+      </div>
+      {% if orders %}
+        {% for order in orders %}
+        <div class="bp-order-card">
+          <div class="bp-order-top">
+            <div>
+              <div class="bp-order-id">{{ order.order_number }}</div>
+              <div class="bp-order-date"><i class="bi bi-calendar3"></i> {{ order.created_at|date:"d M Y, g:i A" }}</div>
+            </div>
+            <div class="bp-order-right">
+              <div class="bp-order-total">₦{{ order.total|floatformat:2|intcomma }}</div>
+              <span class="bp-status bp-status-{{ order.status }}">
+                {% if order.status == 'pending' %}Pending
+                {% elif order.status == 'sent_out' %}Active
+                {% elif order.status == 'delivered' %}Delivered
+                {% elif order.status == 'completed' %}Completed
+                {% elif order.status == 'rejected' %}Rejected
+                {% elif order.status == 'cancelled' %}Cancelled
+                {% else %}{{ order.get_status_display }}{% endif %}
+              </span>
+            </div>
+          </div>
+          <div class="bp-order-items">
+            {% for item in order.items.all %}
+            <div class="bp-order-item">
+              {% if item.product and item.product.image %}<img src="{{ item.product.image.url }}" class="bp-item-img" alt="">
+              {% else %}<div class="bp-item-ph"><i class="bi bi-bag"></i></div>{% endif %}
+              <div class="bp-item-info">
+                <div class="bp-item-name">{{ item.product_name }}</div>
+                <div class="bp-item-qty">Qty: {{ item.quantity }}</div>
+              </div>
+              <div class="bp-item-price">₦{{ item.total_price|floatformat:2|intcomma }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="bp-order-actions">
+            {% if order.status == 'sent_out' %}
+            <form method="POST" action="{% url 'confirm_delivery' order.id %}">{% csrf_token %}
+              <button type="submit" class="bp-confirm-btn"><i class="bi bi-check2-circle"></i> Confirm Received</button>
+            </form>
+            {% endif %}
+            {% if order.status == 'pending' %}
+            <button type="button" class="bp-cancel-btn" onclick="openCancelModal({{ order.id }},'{{ order.order_number }}')">
+              <i class="bi bi-x-circle"></i> Cancel Order
+            </button>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="bp-empty"><i class="bi bi-bag"></i><strong>No orders yet</strong></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- PENDING -->
+  <div class="bp-panel" id="panel-pending">
+    <div class="bp-card">
+      <div class="bp-card-header">
+        <div class="bp-card-title"><i class="bi bi-hourglass-split"></i> Pending Orders</div>
+        <span class="bp-card-count">{{ pending_orders|length }}</span>
+      </div>
+      {% if pending_orders %}
+        {% for order in pending_orders %}
+        <div class="bp-order-card">
+          <div class="bp-order-top">
+            <div>
+              <div class="bp-order-id">{{ order.order_number }}</div>
+              <div class="bp-order-date">{{ order.created_at|date:"d M Y, g:i A" }}</div>
+            </div>
+            <div class="bp-order-right">
+              <div class="bp-order-total">₦{{ order.total|floatformat:2|intcomma }}</div>
+              <span class="bp-status bp-status-pending">Pending</span>
+            </div>
+          </div>
+          <div class="bp-order-items">
+            {% for item in order.items.all %}
+            <div class="bp-order-item">
+              {% if item.product and item.product.image %}<img src="{{ item.product.image.url }}" class="bp-item-img" alt="">
+              {% else %}<div class="bp-item-ph"><i class="bi bi-bag"></i></div>{% endif %}
+              <div class="bp-item-info">
+                <div class="bp-item-name">{{ item.product_name }}</div>
+                <div class="bp-item-qty">Qty: {{ item.quantity }}</div>
+              </div>
+              <div class="bp-item-price">₦{{ item.total_price|floatformat:2|intcomma }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="bp-order-actions">
+            <button type="button" class="bp-cancel-btn" onclick="openCancelModal({{ order.id }},'{{ order.order_number }}')">
+              <i class="bi bi-x-circle"></i> Cancel Order
+            </button>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="bp-empty"><i class="bi bi-hourglass"></i><strong>No pending orders</strong></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ACTIVE -->
+  <div class="bp-panel" id="panel-active">
+    <div class="bp-card">
+      <div class="bp-card-header">
+        <div class="bp-card-title"><i class="bi bi-truck"></i> Active — On the Way</div>
+        <span class="bp-card-count">{{ sent_orders|length }}</span>
+      </div>
+      {% if sent_orders %}
+        {% for order in sent_orders %}
+        <div class="bp-order-card">
+          <div class="bp-order-top">
+            <div>
+              <div class="bp-order-id">{{ order.order_number }}</div>
+              <div class="bp-order-date">{{ order.created_at|date:"d M Y" }}</div>
+            </div>
+            <div class="bp-order-right">
+              <div class="bp-order-total">₦{{ order.total|floatformat:2|intcomma }}</div>
+              <span class="bp-status bp-status-sent_out">Active</span>
+            </div>
+          </div>
+          <div class="bp-tracking">
+            <div class="bp-track-step done"><div class="bp-track-dot"><i class="bi bi-check"></i></div><div class="bp-track-label">Ordered</div></div>
+            <div class="bp-track-step done"><div class="bp-track-dot"><i class="bi bi-check"></i></div><div class="bp-track-label">Accepted</div></div>
+            <div class="bp-track-step active"><div class="bp-track-dot"><i class="bi bi-truck"></i></div><div class="bp-track-label">On the Way</div></div>
+            <div class="bp-track-step"><div class="bp-track-dot"><i class="bi bi-house"></i></div><div class="bp-track-label">Delivered</div></div>
+          </div>
+          <div class="bp-order-items" style="margin-top:8px;">
+            {% for item in order.items.all %}
+            <div class="bp-order-item">
+              {% if item.product and item.product.image %}<img src="{{ item.product.image.url }}" class="bp-item-img" alt="">
+              {% else %}<div class="bp-item-ph"><i class="bi bi-bag"></i></div>{% endif %}
+              <div class="bp-item-info">
+                <div class="bp-item-name">{{ item.product_name }}</div>
+                <div class="bp-item-qty">Qty: {{ item.quantity }}</div>
+              </div>
+              <div class="bp-item-price">₦{{ item.total_price|floatformat:2|intcomma }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="bp-order-actions">
+            <form method="POST" action="{% url 'confirm_delivery' order.id %}">{% csrf_token %}
+              <button type="submit" class="bp-confirm-btn"><i class="bi bi-check2-circle"></i> Confirm Received</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="bp-empty"><i class="bi bi-truck"></i><strong>No active deliveries</strong></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- COMPLETED -->
+  <div class="bp-panel" id="panel-completed">
+    <div class="bp-card">
+      <div class="bp-card-header">
+        <div class="bp-card-title"><i class="bi bi-check-circle"></i> Completed Orders</div>
+        <span class="bp-card-count">{{ completed_orders|length }}</span>
+      </div>
+      {% if completed_orders %}
+        {% for order in completed_orders %}
+        <div class="bp-order-card">
+          <div class="bp-order-top">
+            <div>
+              <div class="bp-order-id">{{ order.order_number }}</div>
+              <div class="bp-order-date">Completed {{ order.completed_at|date:"d M Y"|default:"—" }}</div>
+            </div>
+            <div class="bp-order-right">
+              <div class="bp-order-total">₦{{ order.total|floatformat:2|intcomma }}</div>
+              <span class="bp-status bp-status-completed">Completed</span>
+            </div>
+          </div>
+          <div class="bp-order-items">
+            {% for item in order.items.all %}
+            <div class="bp-order-item">
+              {% if item.product and item.product.image %}<img src="{{ item.product.image.url }}" class="bp-item-img" alt="">
+              {% else %}<div class="bp-item-ph"><i class="bi bi-bag"></i></div>{% endif %}
+              <div class="bp-item-info">
+                <div class="bp-item-name">{{ item.product_name }}</div>
+                <div class="bp-item-qty">Qty: {{ item.quantity }}</div>
+              </div>
+              <div class="bp-item-price">₦{{ item.total_price|floatformat:2|intcomma }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="bp-empty"><i class="bi bi-check-circle"></i><strong>No completed orders yet</strong></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- REJECTED -->
+  <div class="bp-panel" id="panel-rejected">
+    <div class="bp-card">
+      <div class="bp-card-header">
+        <div class="bp-card-title"><i class="bi bi-x-circle"></i> Rejected by Farmer</div>
+        <span class="bp-card-count">{{ rejected_orders|length }}</span>
+      </div>
+      {% if rejected_orders %}
+        {% for order in rejected_orders %}
+        <div class="bp-order-card">
+          <div class="bp-order-top">
+            <div>
+              <div class="bp-order-id">{{ order.order_number }}</div>
+              <div class="bp-order-date">{{ order.created_at|date:"d M Y, g:i A" }}</div>
+            </div>
+            <div class="bp-order-right">
+              <div class="bp-order-total">₦{{ order.total|floatformat:2|intcomma }}</div>
+              <span class="bp-status bp-status-rejected">Rejected</span>
+            </div>
+          </div>
+          <div class="bp-order-items">
+            {% for item in order.items.all %}
+            <div class="bp-order-item">
+              {% if item.product and item.product.image %}<img src="{{ item.product.image.url }}" class="bp-item-img" alt="">
+              {% else %}<div class="bp-item-ph"><i class="bi bi-bag"></i></div>{% endif %}
+              <div class="bp-item-info">
+                <div class="bp-item-name">{{ item.product_name }}</div>
+                <div class="bp-item-qty">Qty: {{ item.quantity }}</div>
+              </div>
+              <div class="bp-item-price">₦{{ item.total_price|floatformat:2|intcomma }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="bp-empty"><i class="bi bi-x-circle"></i><strong>No rejected orders</strong></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- CANCELLED -->
+  <div class="bp-panel" id="panel-cancelled">
+    <div class="bp-card">
+      <div class="bp-card-header">
+        <div class="bp-card-title"><i class="bi bi-slash-circle"></i> Cancelled Orders</div>
+        <span class="bp-card-count">{{ cancelled_orders|length }}</span>
+      </div>
+      {% if cancelled_orders %}
+        {% for order in cancelled_orders %}
+        <div class="bp-order-card">
+          <div class="bp-order-top">
+            <div>
+              <div class="bp-order-id">{{ order.order_number }}</div>
+              <div class="bp-order-date">{{ order.created_at|date:"d M Y, g:i A" }}</div>
+            </div>
+            <div class="bp-order-right">
+              <div class="bp-order-total">₦{{ order.total|floatformat:2|intcomma }}</div>
+              <span class="bp-status bp-status-cancelled">Cancelled</span>
+            </div>
+          </div>
+          <div class="bp-order-items">
+            {% for item in order.items.all %}
+            <div class="bp-order-item">
+              {% if item.product and item.product.image %}<img src="{{ item.product.image.url }}" class="bp-item-img" alt="">
+              {% else %}<div class="bp-item-ph"><i class="bi bi-bag"></i></div>{% endif %}
+              <div class="bp-item-info">
+                <div class="bp-item-name">{{ item.product_name }}</div>
+                <div class="bp-item-qty">Qty: {{ item.quantity }}</div>
+              </div>
+              <div class="bp-item-price">₦{{ item.total_price|floatformat:2|intcomma }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="bp-empty"><i class="bi bi-slash-circle"></i><strong>No cancelled orders</strong></div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<!-- CANCEL MODAL -->
+<div class="bp-modal-overlay" id="cancelModal">
+  <div class="bp-modal">
+    <div class="bp-modal-body-inner">
+      <div class="bp-modal-icon"><i class="bi bi-x-circle"></i></div>
+      <div class="bp-modal-title">Cancel Order?</div>
+      <div class="bp-modal-msg">
+        This cannot be undone. Cancel order
+        <span class="bp-modal-order-num" id="cancelOrderNum"></span>?
+      </div>
+    </div>
+    <div class="bp-modal-foot">
+      <button type="button" class="bp-modal-cancel" onclick="closeCancelModal()">Keep Order</button>
+      <form id="cancelOrderForm" method="POST" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="bp-modal-confirm"><i class="bi bi-x-circle"></i> Yes, Cancel</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="ep-modal-overlay" id="editModal">
+  <div class="ep-modal">
+    <div class="ep-modal-head">
+      <h3>Edit Profile</h3>
+      <button class="ep-modal-close" onclick="closeEditModal()"><i class="bi bi-x"></i></button>
+    </div>
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="ep-modal-body">
+        <div class="ep-field-row">
+          <div class="ep-field">
+            <label class="ep-label">First Name</label>
+            <input type="text" name="first_name" class="ep-input" value="{{ request.user.first_name }}">
+          </div>
+          <div class="ep-field">
+            <label class="ep-label">Last Name</label>
+            <input type="text" name="last_name" class="ep-input" value="{{ request.user.last_name }}">
+          </div>
+        </div>
+        <div class="ep-field">
+          <label class="ep-label">Email</label>
+          <input type="email" name="email" class="ep-input" value="{{ request.user.email }}">
+        </div>
+        <div class="ep-field">
+          <label class="ep-label">Phone</label>
+          <input type="text" name="phone" class="ep-input" value="{{ profile.phone|default:'' }}" placeholder="+234 800 000 0000">
+        </div>
+        <div class="ep-field">
+          <label class="ep-label">Delivery Address</label>
+          <textarea name="address" class="ep-textarea" placeholder="Your default delivery address">{{ profile.address|default:'' }}</textarea>
+        </div>
+        <div class="ep-field">
+          <label class="ep-label">Profile Photo</label>
+          <input type="file" name="image" class="ep-input" accept="image/*">
+        </div>
+      </div>
+      <div class="ep-modal-foot">
+        <button type="button" class="ep-btn-cancel" onclick="closeEditModal()">Cancel</button>
+        <button type="submit" class="ep-btn-save">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function switchTab(name, btn) {
+  document.querySelectorAll('.bp-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bp-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+function openCancelModal(id, num) {
+  document.getElementById('cancelOrderNum').textContent = num;
+  document.getElementById('cancelOrderForm').action = '/orders/cancel/' + id + '/';
+  document.getElementById('cancelModal').classList.add('open');
+}
+function closeCancelModal() { document.getElementById('cancelModal').classList.remove('open'); }
+document.getElementById('cancelModal').addEventListener('click', function(e) { if (e.target === this) closeCancelModal(); });
+function openEditModal()  { document.getElementById('editModal').classList.add('open'); }
+function closeEditModal() { document.getElementById('editModal').classList.remove('open'); }
+document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
+</script>
+{% endblock %}

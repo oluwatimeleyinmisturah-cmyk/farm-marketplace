@@ -1,0 +1,51 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f5f7f6;
+    color: #222;
+}
+
+
+/* HERO */
+.hero {
+    position: relative;
+    padding: 15px;
+    margin-top: 20px;
+}
+
+/* HERO IMAGE */
+.hero-img {
+    width: 100%;
+    display: block;
+    border-radius: 12px;
+}
+
+/* HERO BUTTON (BOTTOM RIGHT) */
+.hero-overlay-btn {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+}
+
+/* GLASS BUTTON */
+.explore-btn {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(12px);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.30);
+}
+
+.explore-btn:hover {
+    background: rgba(255,255,255,0.20);
+    border-color: rgba(255,255,255,0.50);
+}

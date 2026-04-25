@@ -1,0 +1,423 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --g1:#0B8F4D; --g2:#097a40; --g3:#1a3d2b;
+  --g-light:#d8f3dc; --g-pale:#f0faf4;
+  --slate:#f8fafc; --white:#ffffff; --border:#e2e8f0;
+  --txt-1:#111827; --txt-2:#4b5563; --txt-3:#9ca3af;
+  --amber:#f59e0b; --amber-bg:#fffbeb;
+  --blue:#3b82f6;  --blue-bg:#eff6ff;
+  --red:#ef4444;   --red-bg:#fef2f2;
+  --grey:#64748b;  --grey-bg:#f1f5f9;
+  --radius:14px; --radius-sm:9px;
+  --shadow:0 1px 4px rgba(0,0,0,.06),0 6px 18px rgba(0,0,0,.05);
+  --shadow-md:0 4px 24px rgba(11,143,77,.10);
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+body { font-family:'Sora',sans-serif; background:var(--slate); color:var(--txt-1); }
+
+/* ── PAGE WRAPPER ── */
+.od-wrap {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+}
+
+/* ── BREADCRUMB ── */
+.od-breadcrumb {
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  font-size:12px; color:var(--txt-3); margin-bottom:20px; font-weight:500;
+}
+.od-breadcrumb a {
+  color:var(--g1); text-decoration:none; transition:color .2s;
+}
+.od-breadcrumb a:hover { color:var(--g2); }
+.od-breadcrumb span { color:var(--border); }
+
+/* ── PAGE HEADER ── */
+.od-page-header {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:12px; flex-wrap:wrap; margin-bottom:24px;
+}
+.od-page-title {
+  font-size:22px; font-weight:700; color:var(--txt-1); line-height:1.2;
+}
+.od-page-sub {
+  font-size:12px; color:var(--txt-3); margin-top:4px;
+  display:flex; align-items:center; gap:5px;
+}
+.od-page-sub i { font-size:11px; }
+
+/* ── STATUS BADGE ── */
+.od-status {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:11px; font-weight:700; letter-spacing:.05em;
+  padding:5px 12px; border-radius:20px; text-transform:uppercase; flex-shrink:0;
+}
+.od-status-pending   { background:var(--amber-bg); color:var(--amber); }
+.od-status-sent_out  { background:var(--blue-bg);  color:var(--blue); }
+.od-status-completed { background:var(--g-light);  color:var(--g1); }
+.od-status-delivered { background:var(--g-light);  color:var(--g1); }
+.od-status-rejected  { background:var(--red-bg);   color:var(--red); }
+.od-status-cancelled { background:var(--grey-bg);  color:var(--grey); }
+.od-status-dot {
+  width:6px; height:6px; border-radius:50%; background:currentColor;
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity:1; } 50% { opacity:.4; }
+}
+
+/* ── GRID LAYOUT ── */
+.od-grid {
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media(max-width:640px) { .od-grid { grid-template-columns:1fr; } }
+
+.od-grid-full { grid-column: 1 / -1; }
+
+/* ── CARD ── */
+.od-card {
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  transition: box-shadow .2s;
+}
+.od-card:hover { box-shadow: var(--shadow-md); }
+
+.od-card-header {
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:10px;
+  background:var(--slate);
+}
+.od-card-icon {
+  width:32px; height:32px; border-radius:8px;
+  background:var(--g-light); color:var(--g1);
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; flex-shrink:0;
+}
+.od-card-title {
+  font-size:12px; font-weight:700; color:var(--txt-1);
+  text-transform:uppercase; letter-spacing:.06em;
+}
+
+.od-card-body { padding:18px; }
+
+/* ── DETAIL ROWS ── */
+.od-detail-row {
+  display:flex; justify-content:space-between; align-items:flex-start;
+  gap:12px; padding:9px 0;
+  border-bottom:1px solid var(--border);
+  font-size:13px;
+}
+.od-detail-row:last-child { border-bottom:none; padding-bottom:0; }
+.od-detail-row:first-child { padding-top:0; }
+
+.od-detail-label {
+  color:var(--txt-3); font-weight:500; white-space:nowrap; flex-shrink:0;
+}
+.od-detail-value {
+  color:var(--txt-1); font-weight:600; text-align:right;
+  word-break:break-word;
+}
+.od-detail-value.mono {
+  font-family:'Courier New', monospace;
+  font-size:12px; letter-spacing:.03em;
+  color:var(--g1);
+}
+
+/* ── ADDRESS BLOCK ── */
+.od-address-block {
+  font-size:13px; line-height:1.7; color:var(--txt-1);
+  font-weight:500;
+}
+.od-address-block span {
+  display:block;
+}
+.od-address-block .od-addr-line2 { color:var(--txt-2); font-weight:400; }
+
+/* ── ORDER ITEMS TABLE ── */
+.od-items-list {
+  display:flex; flex-direction:column; gap:0;
+}
+
+.od-item-row {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 18px;
+  border-bottom:1px solid var(--border);
+  transition:background .15s;
+}
+.od-item-row:last-child { border-bottom:none; }
+.od-item-row:hover { background:var(--slate); }
+
+.od-item-index {
+  width:24px; height:24px; border-radius:6px;
+  background:var(--g-light); color:var(--g1);
+  font-size:10px; font-weight:800;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.od-item-img {
+  width:44px; height:44px; border-radius:8px;
+  object-fit:cover; border:1px solid var(--border); flex-shrink:0;
+}
+.od-item-ph {
+  width:44px; height:44px; border-radius:8px;
+  background:var(--g-light); color:var(--g1);
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; flex-shrink:0;
+}
+.od-item-info { flex:1; min-width:0; }
+.od-item-name {
+  font-size:13px; font-weight:600; color:var(--txt-1);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.od-item-qty {
+  font-size:11px; color:var(--txt-3); margin-top:2px;
+}
+.od-item-price {
+  font-size:13px; font-weight:700; color:var(--g1); white-space:nowrap;
+}
+
+/* ── TOTALS SECTION ── */
+.od-totals { padding:16px 18px 18px; }
+
+.od-total-row {
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:13px; padding:5px 0;
+}
+.od-total-label { color:var(--txt-2); font-weight:500; }
+.od-total-value { color:var(--txt-1); font-weight:600; }
+.od-total-divider { height:1px; background:var(--border); margin:10px 0; }
+
+.od-grand-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 16px;
+  background:var(--g-pale);
+  border-radius:var(--radius-sm);
+  border:1px solid var(--g-light);
+  margin-top:4px;
+}
+.od-grand-label {
+  font-size:14px; font-weight:700; color:var(--g3);
+}
+.od-grand-value {
+  font-size:22px; font-weight:800; color:var(--g1); line-height:1;
+}
+
+/* ── PAYMENT BADGE ── */
+.od-payment-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--slate); border:1px solid var(--border);
+  padding:6px 12px; border-radius:20px;
+  font-size:12px; font-weight:600; color:var(--txt-2);
+}
+.od-payment-badge i { color:var(--g1); }
+
+/* ── BACK BUTTON ── */
+.od-back-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:9px 16px;
+  background:var(--white); color:var(--txt-2);
+  border:1.5px solid var(--border); border-radius:var(--radius-sm);
+  font-family:'Sora',sans-serif; font-size:13px; font-weight:600;
+  text-decoration:none; cursor:pointer; transition:all .2s;
+  margin-bottom:24px;
+}
+.od-back-btn:hover {
+  background:var(--g-pale); color:var(--g1); border-color:var(--g-light);
+}
+
+/* ── PRINT BUTTON ── */
+.od-print-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:9px 16px;
+  background:var(--g-pale); color:var(--g1);
+  border:1.5px solid var(--g-light); border-radius:var(--radius-sm);
+  font-family:'Sora',sans-serif; font-size:13px; font-weight:600;
+  cursor:pointer; transition:all .2s; border-style:solid;
+}
+.od-print-btn:hover { background:var(--g1); color:#fff; border-color:var(--g1); }
+
+/* ── HEADER ACTIONS ROW ── */
+.od-actions-row {
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+
+/* ── EMPTY ── */
+.od-empty {
+  padding:28px 18px; text-align:center;
+  color:var(--txt-3); font-size:13px;
+}
+.od-empty i { font-size:26px; display:block; margin-bottom:8px; opacity:.3; }
+
+/* ── PRINT STYLES ── */
+@media print {
+  .od-back-btn, .od-print-btn, .od-breadcrumb { display:none !important; }
+  .od-card { box-shadow:none; border:1px solid #ccc; }
+  body { background:#fff; }
+}
+</style>
+
+<div class="od-wrap">
+
+  <!-- BREADCRUMB -->
+  <nav class="od-breadcrumb">
+    <a href="{% url 'farmer_dashboard' %}">Dashboard</a>
+    <span>/</span>
+    <a href="{% url 'farmer_profile' %}">Profile</a>
+    <span>/</span>
+    <span>Order {{ order.order_number }}</span>
+  </nav>
+
+  <!-- BACK + PRINT -->
+  <div class="od-actions-row" style="margin-bottom:20px;">
+    <button class="od-print-btn" onclick="window.print()">
+      <i class="bi bi-printer"></i> Print Order
+    </button>
+  </div>
+
+  <!-- PAGE HEADER -->
+  <div class="od-page-header">
+    <div>
+      <div class="od-page-title">Order {{ order.order_number }}</div>
+      <div class="od-page-sub">
+        <i class="bi bi-clock"></i>
+        Placed on {{ order.created_at|date:"d M Y" }} at {{ order.created_at|time:"H:i" }}
+      </div>
+    </div>
+    <span class="od-status od-status-{{ order.status }}">
+      <span class="od-status-dot"></span>
+      {{ order.get_status_display }}
+    </span>
+  </div>
+
+  <!-- GRID: BUYER INFO + DELIVERY ADDRESS -->
+  <div class="od-grid" style="margin-bottom:16px;">
+
+    <!-- BUYER INFO -->
+    <div class="od-card">
+      <div class="od-card-header">
+        <div class="od-card-icon"><i class="bi bi-person-fill"></i></div>
+        <div class="od-card-title">Buyer Information</div>
+      </div>
+      <div class="od-card-body">
+        <div class="od-detail-row">
+          <span class="od-detail-label">Full Name</span>
+          <span class="od-detail-value">{{ order.full_name }}</span>
+        </div>
+        <div class="od-detail-row">
+          <span class="od-detail-label">Email</span>
+          <span class="od-detail-value">{{ order.email }}</span>
+        </div>
+        <div class="od-detail-row">
+          <span class="od-detail-label">Phone</span>
+          <span class="od-detail-value">{{ order.phone }}</span>
+        </div>
+        <div class="od-detail-row">
+          <span class="od-detail-label">Payment</span>
+          <span class="od-detail-value">
+            <span class="od-payment-badge">
+              <i class="bi bi-credit-card"></i>
+              {{ order.payment_method|default:"Not specified" }}
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DELIVERY ADDRESS -->
+    <div class="od-card">
+      <div class="od-card-header">
+        <div class="od-card-icon"><i class="bi bi-geo-alt-fill"></i></div>
+        <div class="od-card-title">Delivery Address</div>
+      </div>
+      <div class="od-card-body" style="display:flex;align-items:flex-start;gap:12px;">
+        <i class="bi bi-house-fill" style="color:var(--g1);font-size:16px;margin-top:2px;flex-shrink:0;"></i>
+        <div class="od-address-block">
+          <span>{{ order.address }}</span>
+          <span class="od-addr-line2">{{ order.city }}, {{ order.state }}</span>
+          {% if order.notes %}
+          <span class="od-addr-line2" style="margin-top:6px;font-style:italic;">
+            <i class="bi bi-chat-left-quote" style="margin-right:3px;"></i>
+            {{ order.notes }}
+          </span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ORDER ITEMS CARD (full width) -->
+  <div class="od-card" style="margin-bottom:16px;">
+    <div class="od-card-header">
+      <div class="od-card-icon"><i class="bi bi-bag-fill"></i></div>
+      <div class="od-card-title">Ordered Items</div>
+    </div>
+
+    <div class="od-items-list">
+      {% for item in order.items.all %}
+      <div class="od-item-row">
+        <div class="od-item-index">{{ forloop.counter }}</div>
+        {% if item.product and item.product.image %}
+          <img src="{{ item.product.image.url }}" class="od-item-img" alt="{{ item.product_name }}">
+        {% else %}
+          <div class="od-item-ph">🌿</div>
+        {% endif %}
+        <div class="od-item-info">
+          <div class="od-item-name">{{ item.product_name }}</div>
+          <div class="od-item-qty">Qty: {{ item.quantity }}</div>
+        </div>
+        <div class="od-item-price">₦{{ item.total_price|floatformat:2|intcomma }}</div>
+      </div>
+      {% empty %}
+      <div class="od-empty"><i class="bi bi-bag"></i> No items found for this order.</div>
+      {% endfor %}
+    </div>
+
+    <!-- TOTALS -->
+    <div class="od-totals">
+      <div class="od-total-row">
+        <span class="od-total-label">Subtotal</span>
+        <span class="od-total-value">₦{{ order.subtotal|floatformat:2|intcomma }}</span>
+      </div>
+      <div class="od-total-row">
+        <span class="od-total-label">VAT (7.5%)</span>
+        <span class="od-total-value">₦{{ order.tax|floatformat:2|intcomma }}</span>
+      </div>
+      <div class="od-total-row">
+        <span class="od-total-label">Shipping</span>
+        <span class="od-total-value">
+          {% if order.shipping and order.shipping > 0 %}
+            ₦{{ order.shipping|floatformat:2|intcomma }}
+          {% else %}
+            Free
+          {% endif %}
+        </span>
+      </div>
+      <div class="od-total-divider"></div>
+      <div class="od-grand-row">
+        <span class="od-grand-label">Total</span>
+        <span class="od-grand-value">₦{{ order.total|floatformat:2|intcomma }}</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

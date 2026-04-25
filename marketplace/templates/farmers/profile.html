@@ -1,0 +1,809 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+  --g1:#0B8F4D; --g2:#097a40; --g3:#1a3d2b;
+  --g-light:#d8f3dc; --g-pale:#f0faf4;
+  --slate:#f8fafc; --white:#ffffff; --border:#e2e8f0;
+  --txt-1:#111827; --txt-2:#4b5563; --txt-3:#9ca3af;
+  --amber:#f59e0b; --amber-bg:#fffbeb;
+  --blue:#3b82f6;  --blue-bg:#eff6ff;
+  --red:#ef4444;   --red-bg:#fef2f2;
+  --grey:#64748b;  --grey-bg:#f1f5f9;
+  --radius:12px; --radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.05);
+  --shadow-md:0 4px 20px rgba(11,143,77,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+.fp-wrap{
+  font-family:'Sora',sans-serif;
+  max-width:960px;margin:0 auto;
+  padding:20px 16px 80px;
+  color:var(--txt-1);
+  width:100%;overflow-x:hidden;
+}
+
+.fp-msg{padding:12px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;margin-bottom:16px;width:100%;}
+.fp-msg-success{background:var(--g-light);color:var(--g3);}
+.fp-msg-error  {background:var(--red-bg); color:var(--red);}
+
+.fp-breadcrumb{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px;color:var(--txt-3);margin-bottom:20px;}
+.fp-breadcrumb a{color:var(--g1);text-decoration:none;font-weight:500;}
+.fp-breadcrumb a:hover{color:var(--g2);}
+.fp-breadcrumb span{color:var(--border);}
+
+/* ── HEADER CARD ── */
+.fp-header-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:22px 20px 20px;
+  margin-bottom:20px;position:relative;overflow:hidden;
+  width:100%;
+}
+.fp-header-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;
+  height:4px;background:linear-gradient(90deg,var(--g1),#52b788);
+}
+
+/*
+  FIX 1 — header inner layout
+  Mobile: stacked, centred.
+  Desktop (560px+): horizontal row, avatar top-aligned with name block.
+*/
+.fp-header-inner{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  gap:12px;
+  width:100%;
+}
+@media(min-width:560px){
+  .fp-header-inner{
+    flex-direction:row;
+    align-items:flex-start;
+    text-align:left;
+    gap:18px;
+  }
+  .fp-edit-btn{ flex-shrink:0; align-self:flex-start; }
+}
+
+.fp-avatar-wrap{position:relative;flex-shrink:0;}
+.fp-avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--g-light);display:block;}
+.fp-avatar-initials{
+  width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg,var(--g1),#52b788);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;font-weight:700;color:#fff;
+}
+.fp-avatar-badge{
+  position:absolute;bottom:2px;right:2px;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--g1);border:2px solid #fff;
+  display:flex;align-items:center;justify-content:center;
+}
+.fp-avatar-badge i{color:#fff;font-size:9px;}
+
+/*
+  FIX 2 — identity must always have flex:1 at root level
+  so it fills remaining space in the flex row.
+  Without this, on desktop the block collapses to content-width.
+*/
+.fp-identity{
+  flex:1;
+  min-width:0;
+  width:100%;
+}
+
+.fp-role-tag{
+  display:inline-block;background:var(--g-light);color:var(--g1);
+  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:3px 10px;border-radius:20px;margin-bottom:6px;
+}
+.fp-name{
+  font-size:20px;font-weight:700;color:var(--txt-1);
+  line-height:1.2;margin-bottom:8px;word-break:break-word;
+}
+
+/* contact + bio row — wraps naturally */
+.fp-meta-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 16px;
+  justify-content:center;
+  align-items:flex-start;
+  margin-bottom:4px;
+}
+@media(min-width:560px){
+  .fp-meta-row{ justify-content:flex-start; }
+}
+
+.fp-meta-item{
+  display:flex;align-items:center;gap:5px;
+  font-size:12px;color:var(--txt-2);
+  min-width:0;
+}
+.fp-meta-item i{color:var(--g1);font-size:12px;flex-shrink:0;}
+.fp-meta-item span{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  max-width:180px;
+}
+@media(min-width:560px){ .fp-meta-item span{ max-width:220px; } }
+
+/*
+  FIX 3 — bio-inline must NOT truncate.
+  The .fp-meta-item span rule above enforces white-space:nowrap
+  for compact items (email, phone). Override it here for bio.
+*/
+.fp-bio-inline{ align-items:flex-start; }
+.fp-bio-inline span{
+  white-space:normal;
+  overflow:visible;
+  text-overflow:unset;
+  max-width:100%;
+  font-style:italic;
+  line-height:1.45;
+}
+.fp-bio-inline i{ margin-top:2px; }
+
+.fp-edit-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:10px 16px;background:var(--g-pale);color:var(--g1);
+  border:1.5px solid var(--g-light);border-radius:var(--radius-sm);
+  font-family:'Sora',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;text-decoration:none;transition:all .2s;white-space:nowrap;
+}
+.fp-edit-btn:hover{background:var(--g1);color:#fff;border-color:var(--g1);}
+@media(max-width:559px){ .fp-edit-btn{ width:100%;justify-content:center; } }
+
+/* ── STATS ── */
+.fp-stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;margin-bottom:20px;width:100%;
+}
+@media(min-width:700px){ .fp-stats{ grid-template-columns:repeat(4,1fr); } }
+
+.fp-stat{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px 14px;
+  box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:11px;
+  min-width:0; /* FIX 4: prevent grid blowout */
+}
+.fp-stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.fp-stat-icon.green{background:var(--g-light);color:var(--g1);}
+.fp-stat-icon.amber{background:var(--amber-bg);color:var(--amber);}
+.fp-stat-icon.blue {background:var(--blue-bg); color:var(--blue);}
+.fp-stat-icon.slate{background:#f1f5f9;color:#64748b;}
+.fp-stat-val{font-size:20px;font-weight:700;color:var(--txt-1);line-height:1;}
+.fp-stat-lbl{font-size:10px;color:var(--txt-3);font-weight:500;margin-top:2px;text-transform:uppercase;letter-spacing:.05em;}
+
+/* ── TABS ── */
+.fp-tabs-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-bottom:16px;width:100%;}
+.fp-tabs-wrap::-webkit-scrollbar{display:none;}
+.fp-tabs{display:flex;gap:3px;background:var(--slate);border-radius:var(--radius-sm);padding:4px;width:max-content;min-width:100%;}
+.fp-tab{padding:8px 14px;border-radius:7px;font-size:12px;font-weight:600;color:var(--txt-3);cursor:pointer;border:none;background:transparent;font-family:'Sora',sans-serif;transition:all .2s;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
+.fp-tab.active{background:var(--white);color:var(--txt-1);box-shadow:0 1px 4px rgba(0,0,0,.10);}
+.fp-tab-badge{font-size:10px;font-weight:700;padding:1px 5px;border-radius:8px;min-width:16px;text-align:center;color:#fff;}
+.fp-tab-badge.green{background:var(--g1);}
+.fp-tab-badge.amber{background:var(--amber);}
+.fp-tab-badge.blue {background:var(--blue);}
+.fp-tab-badge.red  {background:var(--red);}
+.fp-tab-badge.grey {background:var(--grey);}
+
+.fp-panel{display:none;}
+.fp-panel.active{display:block;}
+
+/* ── CARD ── */
+.fp-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:18px;width:100%;}
+.fp-card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.fp-card-title{font-size:13px;font-weight:700;color:var(--txt-1);display:flex;align-items:center;gap:7px;}
+.fp-card-title i{color:var(--g1);}
+.fp-badge{font-size:11px;font-weight:600;color:var(--txt-3);background:var(--slate);padding:3px 9px;border-radius:16px;}
+
+/* ── ORDER ROW ── */
+.fp-order-row{padding:14px 18px;border-bottom:1px solid var(--border);transition:background .15s;width:100%;}
+.fp-order-row:last-child{border-bottom:none;}
+.fp-order-row:hover{background:var(--slate);}
+.fp-order-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+.fp-order-id{font-size:13px;font-weight:700;color:var(--txt-1);margin-bottom:2px;}
+.fp-order-meta{font-size:11px;color:var(--txt-3);display:flex;flex-wrap:wrap;gap:8px;}
+.fp-order-meta span{display:flex;align-items:center;gap:3px;}
+.fp-order-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.fp-order-price{font-size:13px;font-weight:700;color:var(--g1);}
+
+/*
+  FIX 5 — order items (was completely absent from the original template CSS).
+  Shows product thumbnail, name, qty, and price inside each order row
+  so the farmer knows what was ordered before accepting.
+*/
+.fp-order-items{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
+.fp-order-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 11px;
+  background:var(--slate);
+  border-radius:var(--radius-sm);
+  border:1px solid var(--border);
+  min-width:0;
+}
+.fp-item-img{width:40px;height:40px;border-radius:7px;object-fit:cover;border:1px solid var(--border);flex-shrink:0;}
+.fp-item-ph{width:40px;height:40px;border-radius:7px;background:var(--g-light);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;color:var(--g1);}
+.fp-item-info{flex:1;min-width:0;}
+.fp-item-name{font-size:12px;font-weight:600;color:var(--txt-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fp-item-qty{font-size:11px;color:var(--txt-3);margin-top:1px;}
+.fp-item-price{font-size:12px;font-weight:700;color:var(--g1);white-space:nowrap;flex-shrink:0;}
+
+/* ── ACTIONS ── */
+.fp-order-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.fp-btn-accept,.fp-btn-reject{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;}
+.fp-btn-accept{background:var(--g1);color:#fff;box-shadow:0 2px 8px rgba(11,143,77,.2);}
+.fp-btn-accept:hover{background:var(--g2);}
+.fp-btn-reject{background:var(--red-bg);color:var(--red);border:1.5px solid #fecaca;}
+.fp-btn-reject:hover{background:var(--red);color:#fff;border-color:var(--red);}
+
+/* ── VIEW DETAILS BUTTON ── */
+.fp-btn-view{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--slate);color:var(--txt-2);text-decoration:none;transition:all .2s;}
+.fp-btn-view:hover{background:var(--g1);color:#fff;border-color:var(--g1);}
+
+/* ── STATUS BADGES ── */
+.fp-status{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:16px;text-transform:uppercase;}
+.fp-status-pending  {background:var(--amber-bg);color:var(--amber);}
+.fp-status-sent_out {background:var(--blue-bg); color:var(--blue);}
+.fp-status-completed{background:var(--g-light); color:var(--g1);}
+.fp-status-delivered{background:var(--g-light); color:var(--g1);}
+.fp-status-rejected {background:var(--red-bg);  color:var(--red);}
+.fp-status-cancelled{background:var(--grey-bg); color:var(--grey);}
+
+/* ── TOP CUSTOMERS ── */
+.fp-customer-row{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;transition:background .15s;}
+.fp-customer-row:last-child{border-bottom:none;}
+.fp-customer-row:hover{background:var(--slate);}
+.fp-cust-rank{width:26px;height:26px;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.fp-cust-rank.gold  {background:#fef3c7;color:#92400e;}
+.fp-cust-rank.silver{background:#f1f5f9;color:#475569;}
+.fp-cust-rank.bronze{background:#ffedd5;color:#9a3412;}
+.fp-cust-info{flex:1;min-width:0;}
+.fp-cust-name{font-size:13px;font-weight:600;color:var(--txt-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fp-cust-sub{font-size:11px;color:var(--txt-3);margin-top:1px;}
+.fp-cust-spent{font-size:13px;font-weight:700;color:var(--g1);white-space:nowrap;}
+
+.fp-empty{padding:32px 18px;text-align:center;color:var(--txt-3);font-size:13px;}
+.fp-empty i{font-size:28px;display:block;margin-bottom:8px;opacity:.35;}
+
+/* ── EDIT MODAL ── */
+.fp-modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:5000;display:none;
+  align-items:flex-end;justify-content:center;
+  padding:0;overflow-y:auto;
+}
+@media(min-width:560px){ .fp-modal-overlay{ align-items:center;padding:16px; } }
+.fp-modal-overlay.open{ display:flex; }
+
+.fp-modal{
+  background:var(--white);
+  border-radius:var(--radius) var(--radius) 0 0;
+  width:100%;
+  max-height:92dvh;max-height:92vh;
+  display:flex;flex-direction:column;
+  box-shadow:0 -4px 40px rgba(0,0,0,.2);
+  animation:slideUp .28s ease;
+}
+@media(min-width:560px){
+  .fp-modal{
+    border-radius:var(--radius);max-width:520px;
+    max-height:88dvh;max-height:88vh;
+    margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);
+  }
+}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+.fp-modal-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--white);border-radius:inherit;}
+.fp-modal-head h3{font-size:15px;font-weight:700;color:var(--txt-1);}
+.fp-modal-close{width:30px;height:30px;border-radius:7px;border:none;background:var(--slate);color:var(--txt-2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.fp-modal-close:hover{background:var(--border);}
+
+/* scrollable body — header and footer stay fixed */
+.fp-modal-body{padding:18px 20px;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;min-height:0;}
+
+.fp-field{margin-bottom:14px;}
+.fp-label{display:block;font-size:11px;font-weight:600;color:var(--txt-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+.fp-input,.fp-textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:14px;color:var(--txt-1);background:var(--white);outline:none;transition:border-color .2s,box-shadow .2s;}
+.fp-input:focus,.fp-textarea:focus{border-color:var(--g1);box-shadow:0 0 0 3px rgba(11,143,77,.10);}
+.fp-textarea{resize:vertical;min-height:72px;}
+.fp-field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:440px){ .fp-field-row{ grid-template-columns:1fr; } }
+
+.fp-modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;flex-shrink:0;background:var(--white);flex-wrap:wrap;}
+.fp-btn-cancel-m{padding:10px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--white);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:var(--txt-2);cursor:pointer;}
+.fp-btn-save-m{padding:10px 20px;background:var(--g1);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.fp-btn-save-m:hover{background:var(--g2);}
+@media(max-width:380px){ .fp-btn-cancel-m,.fp-btn-save-m{ flex:1;text-align:center; } }
+</style>
+
+<div class="fp-wrap">
+
+  {% if messages %}
+    {% for msg in messages %}
+    <div class="fp-msg fp-msg-{{ msg.tags|default:'success' }}">
+      <i class="bi bi-{% if msg.tags == 'error' %}x-circle{% else %}check-circle{% endif %}-fill"></i>
+      {{ msg }}
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <nav class="fp-breadcrumb">
+    <a href="{% url 'farmer_dashboard' %}">Dashboard</a>
+    <span>/</span>
+    <span>Profile</span>
+  </nav>
+
+  <!-- PROFILE HEADER CARD -->
+  <div class="fp-header-card">
+    <div class="fp-header-inner">
+
+      <div class="fp-avatar-wrap">
+        {% if profile and profile.image %}
+          <img src="{{ profile.image.url }}" class="fp-avatar" alt="Profile">
+        {% else %}
+          <div class="fp-avatar-initials">
+            {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+          </div>
+        {% endif %}
+        <div class="fp-avatar-badge"><i class="bi bi-patch-check-fill"></i></div>
+      </div>
+
+      <div class="fp-identity">
+        <div class="fp-role-tag">Farmer</div>
+        <div class="fp-name">
+          {% if profile and profile.farm_name %}{{ profile.farm_name }}
+          {% else %}{{ request.user.get_full_name|default:request.user.username }}{% endif %}
+        </div>
+        <div class="fp-meta-row">
+          <div class="fp-meta-item">
+            <i class="bi bi-envelope"></i>
+            <span>{{ request.user.email|default:"No email" }}</span>
+          </div>
+          {% if profile and profile.phone %}
+          <div class="fp-meta-item">
+            <i class="bi bi-telephone"></i>
+            <span>{{ profile.phone }}</span>
+          </div>
+          {% endif %}
+          {% if profile and profile.location %}
+          <div class="fp-meta-item">
+            <i class="bi bi-geo-alt"></i>
+            <span>{{ profile.location }}</span>
+          </div>
+          {% endif %}
+          {% if profile and profile.bio %}
+          <div class="fp-meta-item fp-bio-inline">
+            <i class="bi bi-quote"></i>
+            <span>{{ profile.bio|truncatechars:100 }}</span>
+          </div>
+          {% else %}
+          <div class="fp-meta-item fp-bio-inline">
+            <i class="bi bi-quote"></i>
+            <span style="color:var(--txt-3);">No bio yet.</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <button class="fp-edit-btn" onclick="openModal()">
+        <i class="bi bi-pencil"></i> Edit Profile
+      </button>
+
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="fp-stats">
+    <div class="fp-stat">
+      <div class="fp-stat-icon green"><i class="bi bi-box-seam"></i></div>
+      <div><div class="fp-stat-val">{{ total_products }}</div><div class="fp-stat-lbl">Products</div></div>
+    </div>
+    <div class="fp-stat">
+      <div class="fp-stat-icon blue"><i class="bi bi-bag"></i></div>
+      <div><div class="fp-stat-val">{{ total_orders }}</div><div class="fp-stat-lbl">Orders</div></div>
+    </div>
+    <div class="fp-stat">
+      <div class="fp-stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
+      <div><div class="fp-stat-val">{{ total_pending }}</div><div class="fp-stat-lbl">Pending</div></div>
+    </div>
+    <div class="fp-stat">
+      <div class="fp-stat-icon slate"><i class="bi bi-check-circle"></i></div>
+      <div><div class="fp-stat-val">{{ total_completed }}</div><div class="fp-stat-lbl">Completed</div></div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="fp-tabs-wrap">
+    <div class="fp-tabs">
+      <button class="fp-tab active" onclick="switchTab('pending',this)">
+        <i class="bi bi-hourglass-split"></i> Pending
+        {% if pending_orders %}<span class="fp-tab-badge amber">{{ pending_orders|length }}</span>{% endif %}
+      </button>
+      <button class="fp-tab" onclick="switchTab('active',this)">
+        <i class="bi bi-truck"></i> Active
+        {% if active_orders %}<span class="fp-tab-badge blue">{{ active_orders|length }}</span>{% endif %}
+      </button>
+      <button class="fp-tab" onclick="switchTab('completed',this)">
+        <i class="bi bi-check-circle"></i> Completed
+        {% if completed_orders %}<span class="fp-tab-badge green">{{ completed_orders|length }}</span>{% endif %}
+      </button>
+      <button class="fp-tab" onclick="switchTab('rejected',this)">
+        <i class="bi bi-x-circle"></i> Rejected
+        {% if rejected_orders %}<span class="fp-tab-badge red">{{ rejected_orders|length }}</span>{% endif %}
+      </button>
+      <button class="fp-tab" onclick="switchTab('cancelled',this)">
+        <i class="bi bi-slash-circle"></i> Cancelled
+        {% if cancelled_orders %}<span class="fp-tab-badge grey">{{ cancelled_orders|length }}</span>{% endif %}
+      </button>
+    </div>
+  </div>
+
+  <!-- PENDING -->
+  <div class="fp-panel active" id="panel-pending">
+    <div class="fp-card">
+      <div class="fp-card-header">
+        <div class="fp-card-title"><i class="bi bi-hourglass-split"></i> Pending Orders</div>
+        <span class="fp-badge">{{ pending_orders|length }}</span>
+      </div>
+      {% if pending_orders %}
+        {% for order in pending_orders %}
+        <div class="fp-order-row">
+          <div class="fp-order-top">
+            <div>
+              <div class="fp-order-id">{{ order.order_number }}</div>
+              <div class="fp-order-meta">
+                <span><i class="bi bi-person"></i> {{ order.full_name }}</span>
+                <span><i class="bi bi-calendar3"></i> {{ order.created_at|date:"d M Y" }}</span>
+              </div>
+            </div>
+            <div class="fp-order-right">
+              <div class="fp-order-price">₦{{ order.total|floatformat:2|intcomma }}</div>
+              <span class="fp-status fp-status-pending">Pending</span>
+            </div>
+          </div>
+          <div class="fp-order-items">
+            {% for item in order.items.all %}
+            <div class="fp-order-item">
+              {% if item.product and item.product.image %}
+                <img src="{{ item.product.image.url }}" class="fp-item-img" alt="">
+              {% else %}
+                <div class="fp-item-ph"><i class="bi bi-bag"></i></div>
+              {% endif %}
+              <div class="fp-item-info">
+                <div class="fp-item-name">{{ item.product_name }}</div>
+                <div class="fp-item-qty">Qty: {{ item.quantity }}</div>
+              </div>
+              <div class="fp-item-price">₦{{ item.total_price|floatformat:2|intcomma }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="fp-order-actions">
+            <form method="POST" action="{% url 'accept_order' order.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="fp-btn-accept"><i class="bi bi-check-lg"></i> Accept</button>
+            </form>
+            <form method="POST" action="{% url 'reject_order' order.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="fp-btn-reject"><i class="bi bi-x-lg"></i> Reject</button>
+            </form>
+            <a href="{% url 'order_detail' order.id %}" class="fp-btn-view"><i class="bi bi-eye"></i> View Details</a>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="fp-empty"><i class="bi bi-inbox"></i> No pending orders.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ACTIVE -->
+  <div class="fp-panel" id="panel-active">
+    <div class="fp-card">
+      <div class="fp-card-header">
+        <div class="fp-card-title"><i class="bi bi-truck"></i> Active Orders</div>
+        <span class="fp-badge">{{ active_orders|length }}</span>
+      </div>
+      {% if active_orders %}
+        {% for order in active_orders %}
+        <div class="fp-order-row">
+          <div class="fp-order-top">
+            <div>
+              <div class="fp-order-id">{{ order.order_number }}</div>
+              <div class="fp-order-meta">
+                <span><i class="bi bi-person"></i> {{ order.full_name }}</span>
+                <span><i class="bi bi-calendar3"></i> {{ order.created_at|date:"d M Y" }}</span>
+              </div>
+            </div>
+            <div class="fp-order-right">
+              <div class="fp-order-price">₦{{ order.total|floatformat:2|intcomma }}</div>
+              <span class="fp-status fp-status-sent_out">Active</span>
+            </div>
+          </div>
+          <div class="fp-order-items">
+            {% for item in order.items.all %}
+            <div class="fp-order-item">
+              {% if item.product and item.product.image %}
+                <img src="{{ item.product.image.url }}" class="fp-item-img" alt="">
+              {% else %}
+                <div class="fp-item-ph"><i class="bi bi-bag"></i></div>
+              {% endif %}
+              <div class="fp-item-info">
+                <div class="fp-item-name">{{ item.product_name }}</div>
+                <div class="fp-item-qty">Qty: {{ item.quantity }}</div>
+              </div>
+              <div class="fp-item-price">₦{{ item.total_price|floatformat:2|intcomma }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="fp-order-actions">
+            <a href="{% url 'order_detail' order.id %}" class="fp-btn-view"><i class="bi bi-eye"></i> View Details</a>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="fp-empty"><i class="bi bi-truck"></i> No active orders.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- COMPLETED -->
+  <div class="fp-panel" id="panel-completed">
+    <div class="fp-card">
+      <div class="fp-card-header">
+        <div class="fp-card-title"><i class="bi bi-check-circle"></i> Completed Orders</div>
+        <span class="fp-badge">{{ completed_orders|length }}</span>
+      </div>
+      {% if completed_orders %}
+        {% for order in completed_orders %}
+        <div class="fp-order-row">
+          <div class="fp-order-top">
+            <div>
+              <div class="fp-order-id">{{ order.order_number }}</div>
+              <div class="fp-order-meta">
+                <span><i class="bi bi-person"></i> {{ order.full_name }}</span>
+                <span><i class="bi bi-calendar-check"></i> {{ order.completed_at|date:"d M Y"|default:order.updated_at|date:"d M Y" }}</span>
+              </div>
+            </div>
+            <div class="fp-order-right">
+              <div class="fp-order-price">₦{{ order.total|floatformat:2|intcomma }}</div>
+              <span class="fp-status fp-status-completed">Completed</span>
+            </div>
+          </div>
+          <div class="fp-order-items">
+            {% for item in order.items.all %}
+            <div class="fp-order-item">
+              {% if item.product and item.product.image %}
+                <img src="{{ item.product.image.url }}" class="fp-item-img" alt="">
+              {% else %}
+                <div class="fp-item-ph"><i class="bi bi-bag"></i></div>
+              {% endif %}
+              <div class="fp-item-info">
+                <div class="fp-item-name">{{ item.product_name }}</div>
+                <div class="fp-item-qty">Qty: {{ item.quantity }}</div>
+              </div>
+              <div class="fp-item-price">₦{{ item.total_price|floatformat:2|intcomma }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="fp-order-actions">
+            <a href="{% url 'order_detail' order.id %}" class="fp-btn-view"><i class="bi bi-eye"></i> View Details</a>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="fp-empty"><i class="bi bi-check-circle"></i> No completed orders yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- REJECTED -->
+  <div class="fp-panel" id="panel-rejected">
+    <div class="fp-card">
+      <div class="fp-card-header">
+        <div class="fp-card-title"><i class="bi bi-x-circle"></i> Rejected Orders</div>
+        <span class="fp-badge">{{ rejected_orders|length }}</span>
+      </div>
+      {% if rejected_orders %}
+        {% for order in rejected_orders %}
+        <div class="fp-order-row">
+          <div class="fp-order-top">
+            <div>
+              <div class="fp-order-id">{{ order.order_number }}</div>
+              <div class="fp-order-meta">
+                <span><i class="bi bi-person"></i> {{ order.full_name }}</span>
+                <span><i class="bi bi-calendar3"></i> {{ order.created_at|date:"d M Y" }}</span>
+              </div>
+            </div>
+            <div class="fp-order-right">
+              <div class="fp-order-price">₦{{ order.total|floatformat:2|intcomma }}</div>
+              <span class="fp-status fp-status-rejected">Rejected</span>
+            </div>
+          </div>
+          <div class="fp-order-items">
+            {% for item in order.items.all %}
+            <div class="fp-order-item">
+              {% if item.product and item.product.image %}
+                <img src="{{ item.product.image.url }}" class="fp-item-img" alt="">
+              {% else %}
+                <div class="fp-item-ph"><i class="bi bi-bag"></i></div>
+              {% endif %}
+              <div class="fp-item-info">
+                <div class="fp-item-name">{{ item.product_name }}</div>
+                <div class="fp-item-qty">Qty: {{ item.quantity }}</div>
+              </div>
+              <div class="fp-item-price">₦{{ item.total_price|floatformat:2|intcomma }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="fp-order-actions">
+            <a href="{% url 'order_detail' order.id %}" class="fp-btn-view"><i class="bi bi-eye"></i> View Details</a>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="fp-empty"><i class="bi bi-x-circle"></i> No rejected orders.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- CANCELLED -->
+  <div class="fp-panel" id="panel-cancelled">
+    <div class="fp-card">
+      <div class="fp-card-header">
+        <div class="fp-card-title"><i class="bi bi-slash-circle"></i> Cancelled by Buyers</div>
+        <span class="fp-badge">{{ cancelled_orders|length }}</span>
+      </div>
+      {% if cancelled_orders %}
+        {% for order in cancelled_orders %}
+        <div class="fp-order-row">
+          <div class="fp-order-top">
+            <div>
+              <div class="fp-order-id">{{ order.order_number }}</div>
+              <div class="fp-order-meta">
+                <span><i class="bi bi-person"></i> {{ order.full_name }}</span>
+                <span><i class="bi bi-calendar3"></i> {{ order.created_at|date:"d M Y" }}</span>
+              </div>
+            </div>
+            <div class="fp-order-right">
+              <div class="fp-order-price">₦{{ order.total|floatformat:2|intcomma }}</div>
+              <span class="fp-status fp-status-cancelled">Cancelled</span>
+            </div>
+          </div>
+          <div class="fp-order-items">
+            {% for item in order.items.all %}
+            <div class="fp-order-item">
+              {% if item.product and item.product.image %}
+                <img src="{{ item.product.image.url }}" class="fp-item-img" alt="">
+              {% else %}
+                <div class="fp-item-ph"><i class="bi bi-bag"></i></div>
+              {% endif %}
+              <div class="fp-item-info">
+                <div class="fp-item-name">{{ item.product_name }}</div>
+                <div class="fp-item-qty">Qty: {{ item.quantity }}</div>
+              </div>
+              <div class="fp-item-price">₦{{ item.total_price|floatformat:2|intcomma }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="fp-order-actions">
+            <a href="{% url 'order_detail' order.id %}" class="fp-btn-view"><i class="bi bi-eye"></i> View Details</a>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="fp-empty"><i class="bi bi-slash-circle"></i> No cancelled orders.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- TOP CUSTOMERS -->
+  <div class="fp-card">
+    <div class="fp-card-header">
+      <div class="fp-card-title"><i class="bi bi-people"></i> Top Customers</div>
+      <span class="fp-badge">Top 3</span>
+    </div>
+    {% if top_customers %}
+      {% for customer in top_customers %}
+      <div class="fp-customer-row">
+        <div class="fp-cust-rank {% if forloop.counter == 1 %}gold{% elif forloop.counter == 2 %}silver{% else %}bronze{% endif %}">
+          {{ forloop.counter }}
+        </div>
+        <div class="fp-cust-info">
+          <div class="fp-cust-name">{{ customer.name }}</div>
+          <div class="fp-cust-sub">{{ customer.order_count }} order{{ customer.order_count|pluralize }}</div>
+        </div>
+        <div class="fp-cust-spent">₦{{ customer.total_spent|floatformat:2|intcomma }}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="fp-empty"><i class="bi bi-people"></i> No customer data yet.</div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="fp-modal-overlay" id="editModal">
+  <div class="fp-modal">
+    <div class="fp-modal-head">
+      <h3>Edit Profile</h3>
+      <button class="fp-modal-close" onclick="closeModal()"><i class="bi bi-x"></i></button>
+    </div>
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="fp-modal-body">
+        <div class="fp-field-row">
+          <div class="fp-field">
+            <label class="fp-label">First Name</label>
+            <input type="text" name="first_name" class="fp-input" value="{{ request.user.first_name }}">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Last Name</label>
+            <input type="text" name="last_name" class="fp-input" value="{{ request.user.last_name }}">
+          </div>
+        </div>
+        <div class="fp-field">
+          <label class="fp-label">Farm / Business Name</label>
+          <input type="text" name="farm_name" class="fp-input"
+                 value="{{ profile.farm_name|default:'' }}" placeholder="e.g. Green Valley Farms">
+        </div>
+        <div class="fp-field-row">
+          <div class="fp-field">
+            <label class="fp-label">Email</label>
+            <input type="email" name="email" class="fp-input" value="{{ request.user.email }}">
+          </div>
+          <div class="fp-field">
+            <label class="fp-label">Phone</label>
+            <input type="text" name="phone" class="fp-input"
+                   value="{{ profile.phone|default:'' }}" placeholder="+234 800 000 0000">
+          </div>
+        </div>
+        <div class="fp-field">
+          <label class="fp-label">Location</label>
+          <input type="text" name="location" class="fp-input"
+                 value="{{ profile.location|default:'' }}" placeholder="e.g. Ogun State, Nigeria">
+        </div>
+        <div class="fp-field">
+          <label class="fp-label">Bio</label>
+          <textarea name="bio" class="fp-textarea"
+                    placeholder="Tell buyers about your farm...">{{ profile.bio|default:'' }}</textarea>
+        </div>
+        <div class="fp-field">
+          <label class="fp-label">Profile Photo</label>
+          <input type="file" name="image" class="fp-input" accept="image/*">
+        </div>
+      </div>
+      <div class="fp-modal-foot">
+        <button type="button" class="fp-btn-cancel-m" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="fp-btn-save-m">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function switchTab(name, btn) {
+  document.querySelectorAll('.fp-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.fp-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+function openModal()  { document.getElementById('editModal').classList.add('open'); }
+function closeModal() { document.getElementById('editModal').classList.remove('open'); }
+document.getElementById('editModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+
+{% endblock %}

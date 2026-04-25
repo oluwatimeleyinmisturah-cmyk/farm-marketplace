@@ -1,0 +1,448 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+
+<style>
+.detail-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* BREADCRUMB */
+.detail-breadcrumb {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: #718096; margin-bottom: 28px; font-weight: 500;
+}
+.detail-breadcrumb a { color: #2d6a4f; text-decoration: none; }
+.detail-breadcrumb a:hover { color: #1a3d2b; }
+.detail-breadcrumb span { color: #e2e8f0; }
+
+/* MAIN CARD — white background, green border, NO black */
+.detail-card {
+    background: #ffffff;
+    border: 2px solid #0B8F4D;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(11,143,77,0.12);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 480px;
+}
+
+@media (max-width: 768px) {
+    .detail-card { grid-template-columns: 1fr; }
+}
+
+/* IMAGE SIDE */
+.detail-image-wrap {
+    position: relative;
+    background: #f0faf4;
+    min-height: 380px;
+    overflow: hidden;
+}
+.detail-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+.detail-image-wrap:hover img {
+    transform: scale(1.04);
+}
+
+/* BADGE */
+.detail-badge {
+    position: absolute;
+    top: 16px; left: 16px;
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 12px; font-weight: 700;
+    z-index: 2;
+}
+.detail-badge.new  { background: #ff6b6b; color: white; }
+.detail-badge.hot  { background: #ffd93d; color: #333; }
+
+/* INFO SIDE */
+.detail-info {
+    padding: 40px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .detail-info { padding: 28px 24px; }
+}
+
+.detail-category {
+    display: inline-block;
+    background: #d8f3dc;
+    color: #1a3d2b;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 6px 16px; border-radius: 30px;
+    margin-bottom: 16px;
+}
+
+.detail-name {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a3d2b;
+    line-height: 1.25;
+    margin-bottom: 12px;
+}
+
+.detail-price {
+    font-size: 32px;
+    font-weight: 900;
+    color: #0B8F4D;
+    margin-bottom: 20px;
+}
+
+.detail-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+    padding: 20px;
+    background: #f0faf4;
+    border-radius: 14px;
+    border: 1px solid #d8f3dc;
+}
+.detail-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #4a5568;
+}
+.detail-meta-row i {
+    color: #0B8F4D;
+    font-size: 16px;
+    width: 20px;
+    flex-shrink: 0;
+}
+.detail-meta-row strong { color: #1a3d2b; }
+
+/* DESCRIPTION */
+.detail-description {
+    font-size: 14px;
+    color: #4a5568;
+    line-height: 1.7;
+    margin-bottom: 28px;
+    padding: 16px;
+    background: #fafffe;
+    border-left: 3px solid #0B8F4D;
+    border-radius: 0 10px 10px 0;
+}
+
+/* QUANTITY SELECTOR */
+.qty-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.qty-label {
+    font-size: 14px; font-weight: 600; color: #1a3d2b;
+}
+.qty-control {
+    display: flex;
+    align-items: center;
+    border: 2px solid #0B8F4D;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.qty-btn {
+    width: 38px; height: 38px;
+    border: none; background: #f0faf4;
+    font-size: 18px; font-weight: 700;
+    color: #0B8F4D; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+}
+.qty-btn:hover { background: #d8f3dc; }
+.qty-input {
+    width: 52px; height: 38px;
+    border: none; border-left: 1px solid #d8f3dc; border-right: 1px solid #d8f3dc;
+    text-align: center; font-size: 15px; font-weight: 700;
+    color: #1a3d2b; background: white; outline: none;
+}
+
+/* ACTION BUTTONS */
+.detail-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-add-cart {
+    flex: 1;
+    min-width: 140px;
+    padding: 14px 20px;
+    background: white;
+    color: #0B8F4D;
+    border: 2px solid #0B8F4D;
+    border-radius: 14px;
+    font-size: 15px; font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.25s ease;
+    text-decoration: none;
+}
+.btn-add-cart:hover {
+    background: #f0faf4;
+    color: #0B8F4D;
+    transform: translateY(-2px);
+}
+
+.btn-buy-now {
+    flex: 1;
+    min-width: 140px;
+    padding: 14px 20px;
+    background: #0B8F4D;
+    color: white;
+    border: 2px solid #0B8F4D;
+    border-radius: 14px;
+    font-size: 15px; font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.25s ease;
+    text-decoration: none;
+}
+.btn-buy-now:hover {
+    background: #097a40;
+    border-color: #097a40;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(11,143,77,0.35);
+}
+
+/* STOCK INDICATOR */
+.stock-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600;
+    padding: 6px 14px; border-radius: 30px;
+    margin-bottom: 20px;
+}
+.stock-badge.in-stock  { background: #d8f3dc; color: #1a3d2b; }
+.stock-badge.low-stock { background: #fef3e2; color: #92400e; }
+.stock-badge.no-stock  { background: #fff5f5; color: #e53e3e; }
+
+/* TOAST */
+#detail-toast {
+    position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+    background: #1a3d2b; color: white; padding: 14px 22px;
+    border-radius: 14px; font-size: 14px; font-weight: 500;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    display: flex; align-items: center; gap: 10px;
+    opacity: 0; transform: translateY(20px);
+    transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events: none; max-width: 340px;
+}
+#detail-toast.show { opacity: 1; transform: translateY(0); }
+#detail-toast i { color: #52b788; font-size: 18px; flex-shrink: 0; }
+
+/* BACK LINK */
+.back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: #2d6a4f; text-decoration: none; font-size: 14px; font-weight: 600;
+    margin-top: 28px; transition: color 0.2s;
+}
+.back-link:hover { color: #1a3d2b; }
+</style>
+
+<!-- TOAST -->
+<div id="detail-toast">
+    <i class="bi bi-check-circle-fill"></i>
+    <span id="detail-toast-msg">Added to cart!</span>
+</div>
+
+<div class="detail-wrapper">
+
+    <!-- BREADCRUMB -->
+    <nav class="detail-breadcrumb">
+        <a href="{% url 'home' %}"><i class="bi bi-house"></i> Home</a>
+        <span>/</span>
+        <a href="{% url 'product_list' %}">Products</a>
+        <span>/</span>
+        <span>{{ product.name }}</span>
+    </nav>
+
+    <!-- MAIN CARD -->
+    <div class="detail-card">
+
+        <!-- IMAGE -->
+        <div class="detail-image-wrap">
+            {% if product.is_new %}
+                <div class="detail-badge new">New</div>
+            {% elif product.is_hot %}
+                <div class="detail-badge hot">Popular</div>
+            {% endif %}
+
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% else %}
+                <div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:80px;">🌿</div>
+            {% endif %}
+        </div>
+
+        <!-- INFO -->
+        <div class="detail-info">
+
+            <div>
+                <span class="detail-category">{{ product.get_category_display }}</span>
+                <h1 class="detail-name">{{ product.name }}</h1>
+                <div class="detail-price">₦{{ product.price|floatformat:2|intcomma }}</div>
+
+                <!-- STOCK STATUS -->
+                {% if product.quantity > 10 %}
+                    <div class="stock-badge in-stock"><i class="bi bi-check-circle-fill"></i> In Stock ({{ product.quantity }} available)</div>
+                {% elif product.quantity > 0 %}
+                    <div class="stock-badge low-stock"><i class="bi bi-exclamation-triangle-fill"></i> Low Stock — only {{ product.quantity }} left</div>
+                {% else %}
+                    <div class="stock-badge no-stock"><i class="bi bi-x-circle-fill"></i> Out of Stock</div>
+                {% endif %}
+
+                <!-- META -->
+                <div class="detail-meta">
+                    <div class="detail-meta-row">
+                        <i class="bi bi-person-circle"></i>
+                        <span><strong>Farmer:</strong> {{ product.farmer.get_full_name|default:product.farmer.username }}</span>
+                    </div>
+                    <div class="detail-meta-row">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span><strong>Location:</strong> {{ product.location }}</span>
+                    </div>
+                    <div class="detail-meta-row">
+                        <i class="bi bi-box-seam"></i>
+                        <span><strong>Available Qty:</strong> {{ product.quantity }} units</span>
+                    </div>
+                </div>
+
+                {% if product.description %}
+                <div class="detail-description">
+                    {{ product.description }}
+                </div>
+                {% endif %}
+
+                <!-- QUANTITY PICKER -->
+                {% if product.quantity > 0 %}
+                <div class="qty-row">
+                    <span class="qty-label">Quantity:</span>
+                    <div class="qty-control">
+                        <button class="qty-btn" type="button" onclick="changeQty(-1)">−</button>
+                        <input type="number" class="qty-input" id="qtyInput" value="1" min="1" max="{{ product.quantity }}">
+                        <button class="qty-btn" type="button" onclick="changeQty(1)">+</button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            {% if product.quantity > 0 %}
+            <div class="detail-actions">
+
+                <!-- ADD TO CART — AJAX, stays on page -->
+                <button class="btn-add-cart" id="addCartBtn"
+                        onclick="addToCartDetail({{ product.id }}, '{{ product.name|escapejs }}')">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                </button>
+
+                <!-- BUY NOW — POST form, goes to checkout -->
+                <form method="POST" action="{% url 'buy_now' product.id %}" style="flex:1;min-width:140px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantity" id="buyNowQty" value="1">
+                    <button type="submit" class="btn-buy-now" style="width:100%;">
+                        <i class="bi bi-lightning-charge-fill"></i> Buy Now
+                    </button>
+                </form>
+
+            </div>
+            {% else %}
+            <button class="btn-add-cart" disabled style="opacity:0.5;cursor:not-allowed;">
+                <i class="bi bi-x-circle"></i> Out of Stock
+            </button>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <a href="{% url 'product_list' %}" class="back-link">
+        <i class="bi bi-arrow-left"></i> Back to Products
+    </a>
+
+</div>
+
+<script>
+function changeQty(delta) {
+    const input = document.getElementById('qtyInput');
+    const max   = parseInt(input.max) || 9999;
+    let val = parseInt(input.value) || 1;
+    val = Math.min(Math.max(val + delta, 1), max);
+    input.value = val;
+    // Keep Buy Now hidden input in sync
+    const buyQty = document.getElementById('buyNowQty');
+    if (buyQty) buyQty.value = val;
+}
+
+// Keep qty inputs in sync when user types
+document.getElementById('qtyInput')?.addEventListener('input', function () {
+    const buyQty = document.getElementById('buyNowQty');
+    if (buyQty) buyQty.value = this.value;
+});
+
+// TOAST
+let toastTimer;
+function showDetailToast(msg) {
+    const toast = document.getElementById('detail-toast');
+    document.getElementById('detail-toast-msg').textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+// AJAX Add to Cart
+function addToCartDetail(productId, productName) {
+    const qty = parseInt(document.getElementById('qtyInput')?.value) || 1;
+    const csrfToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+
+    const btn = document.getElementById('addCartBtn');
+    btn.disabled = true;
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Adding...';
+
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `quantity=${qty}`,
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showDetailToast(`"${productName}" has been added to cart ✓`);
+        } else {
+            showDetailToast('Could not add to cart. Please try again.');
+        }
+    })
+    .catch(() => showDetailToast('Network error. Please try again.'))
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = original;
+    });
+}
+</script>
+
+{% endblock %}

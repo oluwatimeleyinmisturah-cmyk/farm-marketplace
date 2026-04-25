@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block content %}
+<style>
+.pay-wrap {
+    max-width: 520px;
+    margin: 40px auto;
+    padding: 0 16px 80px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.pay-card {
+    background: white;
+    border-radius: 20px;
+    padding: 36px 32px;
+    box-shadow: 0 8px 32px rgba(11,143,77,0.10);
+    border: 1px solid #e2e8f0;
+}
+
+.pay-logo-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+}
+
+.pay-icon {
+    width: 48px; height: 48px;
+    background: #d8f3dc;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+}
+
+.pay-title { font-size: 18px; font-weight: 700; color: #1a3d2b; }
+.pay-sub   { font-size: 13px; color: #718096; margin-top: 2px; }
+
+.pay-order-ref {
+    background: #f0faf4;
+    border: 1px solid #d8f3dc;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: #2d6a4f;
+}
+
+.pay-order-ref strong { display: block; font-size: 15px; color: #1a3d2b; margin-bottom: 4px; }
+
+.pay-breakdown { margin-bottom: 24px; }
+
+.pay-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #4a5568;
+    margin-bottom: 8px;
+}
+
+.pay-divider { height: 1px; background: #e2e8f0; margin: 14px 0; }
+
+.pay-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pay-total-label { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+.pay-total-amount { font-size: 26px; font-weight: 900; color: #0B8F4D; }
+
+.pay-btn {
+    width: 100%;
+    padding: 16px;
+    background: #0B8F4D;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 24px;
+    box-shadow: 0 4px 18px rgba(11,143,77,0.35);
+    font-family: 'Poppins', sans-serif;
+}
+
+.pay-btn:hover {
+    background: #097a40;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(11,143,77,0.45);
+}
+
+.pay-secure {
+    text-align: center;
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.pay-secure i { color: #0B8F4D; }
+
+.pay-back {
+    display: block;
+    text-align: center;
+    margin-top: 14px;
+    font-size: 13px;
+    color: #718096;
+    text-decoration: none;
+}
+
+.pay-back:hover { color: #0B8F4D; }
+</style>
+
+<div class="pay-wrap">
+    <div class="pay-card">
+
+        <div class="pay-logo-row">
+            <div class="pay-icon">💳</div>
+            <div>
+                <div class="pay-title">Complete Payment</div>
+                <div class="pay-sub">Farm Market Africa — Secure checkout</div>
+            </div>
+        </div>
+
+        <div class="pay-order-ref">
+            <strong>{{ order.order_number }}</strong>
+            Placed on {{ order.created_at|date:"d M Y, g:i A" }}
+        </div>
+
+        <div class="pay-breakdown">
+            <div class="pay-row">
+                <span>Subtotal</span>
+                <span>₦{{ order.subtotal|floatformat:2|intcomma }}</span>
+            </div>
+            <div class="pay-row">
+                <span>VAT (7.5%)</span>
+                <span>₦{{ order.tax|floatformat:2|intcomma }}</span>
+            </div>
+            <div class="pay-row">
+                <span>Shipping</span>
+                <span>₦{{ order.shipping_cost|floatformat:2|intcomma }}</span>
+            </div>
+            <div class="pay-divider"></div>
+            <div class="pay-total-row">
+                <span class="pay-total-label">Total Due</span>
+                <span class="pay-total-amount">₦{{ order.total|floatformat:2|intcomma }}</span>
+            </div>
+        </div>
+
+        <button class="pay-btn" onclick="payWithPaystack()">
+            <i class="bi bi-lock-fill"></i>
+            Pay ₦{{ order.total|floatformat:2|intcomma }}
+        </button>
+
+        <p class="pay-secure">
+            <i class="bi bi-shield-check"></i>
+            Secured by Paystack · 256-bit SSL
+        </p>
+
+        <a href="{% url 'profile' %}" class="pay-back">
+            Return to my orders
+        </a>
+
+    </div>
+</div>
+
+<!-- Paystack inline JS -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
+<script>
+function payWithPaystack() {
+    const handler = PaystackPop.setup({
+        key: 'pk_test_53737f1a57dac07a9d385fd8f4a7a3b82b1bf861',
+        email: '{{ order.email }}',
+        amount: {{ order.total|floatformat:0 }} * 100, 
+        currency: 'NGN',
+        ref: '{{ order.order_number }}_' + Date.now(),
+
+        metadata: {
+            order_id: {{ order.id }}
+        },
+
+        callback: function(response) {
+            window.location.href =
+                "{% url 'paystack_verify' order.id %}?reference=" + response.reference;
+        },
+
+        onClose: function() {
+            alert("Payment cancelled");
+        }
+    });
+
+    handler.openIframe();
+}
+</script>
+{% endblock %}
