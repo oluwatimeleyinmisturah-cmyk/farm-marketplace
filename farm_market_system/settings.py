@@ -125,7 +125,6 @@ EMAIL_HOST_USER     = 'thesanniolawales@gmail.com'
 EMAIL_HOST_PASSWORD = 'galkgblvbjxianmn'
 DEFAULT_FROM_EMAIL  = f'Farm Market Africa <{EMAIL_HOST_USER}>'
 
-# FIX: CONTACT_EMAIL was missing — contact_form view sends messages here
 CONTACT_EMAIL = 'thesanniolawales@gmail.com'
 
 

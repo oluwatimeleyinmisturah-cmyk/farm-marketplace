@@ -535,14 +535,12 @@ body { font-family: 'DM Sans', sans-serif; background: var(--cream); }
 </div>
 
 <script>
-// Shipping cost for each delivery option (must match your backend)
 const SHIPPING_COSTS = {
     standard: 2000,
     express:  4500,
     pickup:   0
 };
 
-// These values come from Django and never change regardless of delivery method
 const SUBTOTAL = {{ subtotal }};
 const TAX      = {{ tax }};
 

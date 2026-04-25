@@ -17,8 +17,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_display  = ('name', 'farmer', 'category', 'price', 'quantity', 'is_new', 'is_hot', 'created_at')
     list_filter   = ('category', 'is_new', 'is_hot', 'created_at')
     search_fields = ('name', 'farmer__username', 'location')
-    list_editable = ('price', 'quantity', 'is_new', 'is_hot')  # 🔥 added more control
-    ordering      = ('-created_at',)
+    list_editable = ('price', 'quantity', 'is_new', 'is_hot')  
 
 
 # ── Order Item inline ─────────────────────────────────────
@@ -27,8 +26,7 @@ class OrderItemInline(admin.TabularInline):
     extra  = 0
     fields = ('product_name', 'quantity', 'unit_price', 'total_price', 'farmer')
     readonly_fields = ('product_name', 'unit_price', 'total_price', 'farmer')
-    can_delete = False  # 🔥 prevents accidental deletion
-
+    can_delete = False  
 
 # ── Order ─────────────────────────────────────────────────
 @admin.register(Order)
@@ -58,7 +56,6 @@ class OrderAdmin(admin.ModelAdmin):
         }),
     )
 
-    # clean display for order number
     def order_number_display(self, obj):
         return obj.order_number
     order_number_display.short_description = 'Order ID'

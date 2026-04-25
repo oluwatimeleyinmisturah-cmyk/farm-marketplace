@@ -442,7 +442,7 @@ def contact_form(request):
                 ),
                 settings.DEFAULT_FROM_EMAIL,
                 [email],
-                fail_silently=True,  # don't fail the request if auto-reply fails
+                fail_silently=True,  
             )
 
             messages.success(request, "Your message has been sent. We will be in touch soon.")
@@ -508,7 +508,6 @@ def cart_view(request):
         'shipping': shipping,
         'total': total,
 
-        # ✅ THIS IS WHAT YOUR BADGE WILL USE
         'cart_count': _cart_total_count(cart),
     })
 
@@ -525,7 +524,6 @@ def add_to_cart(request, product_id):
     cart[str(product_id)] = cart.get(str(product_id), 0) + quantity
     _save_cart(request, cart)
 
-    # ✅ AJAX RESPONSE (for instant update if you use JS later)
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
             'success': True,
@@ -872,7 +870,6 @@ def farmer_profile(request):
     total_pending   = pending_orders.count()
     total_completed = completed_orders.count()
 
-    # Completed orders only — money actually received
     top_customers_qs = (
         my_order_items
         .filter(order__status='completed')

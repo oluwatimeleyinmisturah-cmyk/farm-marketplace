@@ -544,7 +544,7 @@ document.addEventListener('click', function(e) {
     }
 });
 
-/* FIX 3 & 4: load notifications and start background polling */
+/*  load notifications and start background polling */
 function loadNotifs() {
     fetch('/notifications/', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
         .then(r => r.json())
