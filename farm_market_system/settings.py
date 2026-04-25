@@ -14,6 +14,9 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = ['.onrender.com', 'localhost', '127.0.0.1']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com'
+]
 
 # ─────────────────────────────
 # APPLICATIONS
