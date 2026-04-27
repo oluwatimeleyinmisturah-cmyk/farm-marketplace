@@ -4,248 +4,549 @@
 
 {% block content %}
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --g1:#0B8F4D; --g2:#097a40; --g3:#1a3d2b;
-  --g-light:#d8f3dc; --g-pale:#f0faf4;
-  --slate:#f8fafc; --white:#ffffff; --border:#e2e8f0;
-  --txt-1:#111827; --txt-2:#4b5563; --txt-3:#9ca3af;
-  --amber:#f59e0b; --amber-bg:#fffbeb;
-  --blue:#3b82f6;  --blue-bg:#eff6ff;
-  --red:#ef4444;   --red-bg:#fef2f2;
-  --grey:#64748b;  --grey-bg:#f1f5f9;
-  --radius:12px; --radius-sm:8px;
-  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.05);
-  --shadow-md:0 4px 20px rgba(11,143,77,.12);
+  --green-50:#f0faf4;
+  --green-100:#d8f3e3;
+  --green-200:#a8e0bf;
+  --green-400:#3daa6e;
+  --green-600:#0e7c45;
+  --green-700:#0b6438;
+  --green-800:#094f2c;
+  --green-900:#062e1a;
+
+  --amber-50:#fffbeb;
+  --amber-100:#fef3c7;
+  --amber-400:#f59e0b;
+  --amber-700:#b45309;
+
+  --red-50:#fef2f2;
+  --red-100:#fee2e2;
+  --red-400:#f87171;
+  --red-600:#dc2626;
+  --red-700:#b91c1c;
+
+  --blue-50:#eff6ff;
+  --blue-100:#dbeafe;
+  --blue-400:#60a5fa;
+  --blue-700:#1d4ed8;
+
+  --slate-50:#f8fafc;
+  --slate-100:#f1f5f9;
+  --slate-200:#e2e8f0;
+  --slate-300:#cbd5e1;
+  --slate-400:#94a3b8;
+  --slate-600:#475569;
+  --slate-700:#334155;
+  --slate-900:#0f172a;
+
+  --white:#ffffff;
+  --radius-sm:8px;
+  --radius-md:12px;
+  --radius-lg:16px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 2px 8px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
 }
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
-.db-wrap{
-  font-family:'Sora',sans-serif;
-  max-width:960px;
+/* ── WRAPPER ── */
+.fdb{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  max-width:520px;
   margin:0 auto;
   padding:20px 16px 80px;
-  color:var(--txt-1);
-  width:100%;
-  overflow-x:hidden;
+  color:var(--slate-900);
+  background:var(--slate-50);
+  min-height:100vh;
 }
 
-.db-msg{padding:12px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;margin-bottom:16px;width:100%;}
-.db-msg-success{background:var(--g-light);color:var(--g3);}
-.db-msg-error  {background:var(--red-bg); color:var(--red);}
+/* ── FLASH MESSAGES ── */
+.fdb-flash{
+  display:flex;align-items:center;gap:9px;
+  padding:11px 14px;
+  border-radius:var(--radius-sm);
+  font-size:13px;font-weight:600;
+  margin-bottom:16px;
+}
+.fdb-flash-success{background:var(--green-100);color:var(--green-800);border:1px solid var(--green-200);}
+.fdb-flash-error  {background:var(--red-100);  color:var(--red-700);  border:1px solid var(--red-100);}
+.fdb-flash i{font-size:14px;}
 
-.db-topbar{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;width:100%;}
-.db-greeting{font-size:20px;font-weight:700;color:var(--txt-1);line-height:1.25;}
-.db-greeting span{color:var(--g1);}
-.db-subtitle{font-size:13px;color:var(--txt-3);margin-top:3px;}
-.db-add-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;background:var(--g1);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer;white-space:nowrap;box-shadow:0 3px 10px rgba(11,143,77,.25);transition:background .2s,transform .15s;flex-shrink:0;}
-.db-add-btn:hover{background:var(--g2);transform:translateY(-1px);}
+/* ── HEADER ── */
+.fdb-header{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:12px;margin-bottom:20px;
+}
+.fdb-greet{
+  font-size:22px;font-weight:800;
+  color:var(--slate-900);line-height:1.2;
+}
+.fdb-greet span{color:var(--green-600);}
+.fdb-sub{
+  font-size:12px;font-weight:500;
+  color:var(--slate-400);margin-top:4px;
+  letter-spacing:.01em;
+}
+.fdb-add-btn{
+  flex-shrink:0;
+  display:inline-flex;align-items:center;gap:6px;
+  padding:10px 16px;
+  background:var(--green-600);color:var(--white);
+  border:none;border-radius:var(--radius-sm);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:12px;font-weight:700;
+  text-decoration:none;cursor:pointer;
+  letter-spacing:.02em;
+  transition:background .18s,transform .12s;
+  white-space:nowrap;
+}
+.fdb-add-btn:hover{background:var(--green-700);transform:translateY(-1px);}
+.fdb-add-btn:active{transform:translateY(0);}
 
-.db-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;width:100%;}
-.db-stat{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px;box-shadow:var(--shadow);display:flex;align-items:center;gap:14px;min-width:0;}
-.db-stat-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.db-stat-icon.green{background:var(--g-light);color:var(--g1);}
-.db-stat-icon.amber{background:var(--amber-bg);color:var(--amber);}
-.db-stat-body{min-width:0;}
-.db-stat-val{font-size:22px;font-weight:700;color:var(--txt-1);line-height:1;}
-.db-stat-lbl{font-size:11px;color:var(--txt-3);font-weight:500;margin-top:3px;text-transform:uppercase;letter-spacing:.05em;}
+/* ── STAT CARDS ── */
+.fdb-stats{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:12px;margin-bottom:20px;
+}
+.fdb-stat{
+  background:var(--white);
+  border:1px solid var(--slate-200);
+  border-radius:var(--radius-md);
+  padding:16px;
+  box-shadow:var(--shadow-sm);
+  display:flex;flex-direction:column;gap:12px;
+}
+.fdb-stat-icon{
+  width:38px;height:38px;
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+}
+.fdb-stat-icon.g{background:var(--green-50); color:var(--green-600);}
+.fdb-stat-icon.a{background:var(--amber-50); color:var(--amber-400);}
+.fdb-stat-val{
+  font-size:28px;font-weight:800;
+  color:var(--slate-900);line-height:1;
+}
+.fdb-stat-lbl{
+  font-size:10px;font-weight:700;
+  color:var(--slate-400);letter-spacing:.08em;
+  text-transform:uppercase;margin-top:2px;
+}
 
-.db-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px;width:100%;}
-.db-card:last-child{margin-bottom:0;}
-.db-card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
-.db-card-title{font-size:14px;font-weight:700;color:var(--txt-1);display:flex;align-items:center;gap:7px;}
-.db-card-title i{color:var(--g1);}
-.db-card-count{font-size:12px;font-weight:600;color:var(--txt-3);background:var(--slate);padding:3px 10px;border-radius:20px;white-space:nowrap;}
-.db-card-link{font-size:12px;font-weight:600;color:var(--g1);text-decoration:none;display:flex;align-items:center;gap:4px;}
-.db-card-link:hover{color:var(--g2);}
+/* ── SECTION CARD ── */
+.fdb-card{
+  background:var(--white);
+  border:1px solid var(--slate-200);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-md);
+  overflow:hidden;
+  margin-bottom:16px;
+}
+.fdb-card:last-child{margin-bottom:0;}
 
-.db-product-list{width:100%;}
-.db-product-row{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border);transition:background .15s;width:100%;min-width:0;}
-.db-product-row:last-child{border-bottom:none;}
-.db-product-row:hover{background:var(--slate);}
-.db-prod-img{width:44px;height:44px;border-radius:9px;object-fit:cover;border:1px solid var(--border);flex-shrink:0;}
-.db-prod-img-ph{width:44px;height:44px;border-radius:9px;background:var(--g-pale);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--txt-3);flex-shrink:0;}
-.db-prod-info{flex:1;min-width:0;}
-.db-prod-name{font-size:13px;font-weight:600;color:var(--txt-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.db-prod-meta{font-size:11px;color:var(--txt-3);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-.db-stock{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
-.db-stock-ok {background:var(--g-light); color:var(--g1);}
-.db-stock-low{background:var(--amber-bg);color:var(--amber);}
-.db-stock-out{background:var(--red-bg);  color:var(--red);}
-.db-prod-price{font-size:13px;font-weight:700;color:var(--g1);white-space:nowrap;flex-shrink:0;}
-.db-row-actions{display:flex;gap:6px;flex-shrink:0;align-items:center;}
-.db-btn-edit,.db-btn-del{display:inline-flex;align-items:center;gap:3px;padding:6px 10px;border-radius:7px;font-family:'Sora',sans-serif;font-size:11px;font-weight:600;cursor:pointer;border:none;text-decoration:none;transition:all .2s;white-space:nowrap;}
-.db-btn-edit{background:var(--g-pale);color:var(--g1);border:1.5px solid var(--g-light);}
-.db-btn-edit:hover{background:var(--g1);color:#fff;border-color:var(--g1);}
-.db-btn-del{background:var(--red-bg);color:var(--red);border:1.5px solid #fecaca;}
-.db-btn-del:hover{background:var(--red);color:#fff;border-color:var(--red);}
-@media(max-width:400px){.db-product-row{flex-wrap:wrap;}.db-row-actions{width:100%;justify-content:flex-end;padding-top:6px;}}
-
-.db-status{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:20px;text-transform:uppercase;white-space:nowrap;}
-.db-status-pending  {background:var(--amber-bg);color:var(--amber);}
-.db-status-sent_out {background:var(--blue-bg); color:var(--blue);}
-.db-status-completed{background:var(--g-light); color:var(--g1);}
-.db-status-delivered{background:var(--g-light); color:var(--g1);}
-.db-status-rejected {background:var(--red-bg);  color:var(--red);}
-.db-status-cancelled{background:var(--grey-bg); color:var(--grey);}
-
-/* ── ORDER ROWS ── */
-.db-order-row{
-  padding:13px 18px;
-  border-bottom:1px solid var(--border);
+.fdb-card-head{
+  padding:14px 18px;
+  border-bottom:1px solid var(--slate-100);
   display:flex;align-items:center;justify-content:space-between;
-  gap:10px;flex-wrap:wrap;
-  transition:background .15s;width:100%;
+  gap:8px;
 }
-.db-order-row:last-child{border-bottom:none;}
-.db-order-row:hover{background:var(--slate);}
-.db-order-left{flex:1;min-width:0;}
-.db-order-num{font-size:13px;font-weight:700;color:var(--txt-1);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.db-order-meta{font-size:12px;color:var(--txt-3);}
-.db-order-right{display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;}
-.db-order-price{font-size:13px;font-weight:700;color:var(--g1);white-space:nowrap;}
-
-/* NEW: View Details button for dashboard order rows */
-.db-btn-view{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:6px 11px;
-  background:var(--slate);color:var(--txt-2);
-  border:1.5px solid var(--border);border-radius:7px;
-  font-family:'Sora',sans-serif;font-size:11px;font-weight:600;
-  text-decoration:none;cursor:pointer;transition:all .2s;white-space:nowrap;
+.fdb-card-title{
+  font-size:14px;font-weight:700;
+  color:var(--slate-900);
+  display:flex;align-items:center;gap:8px;
 }
-.db-btn-view:hover{background:var(--g1);color:#fff;border-color:var(--g1);}
+.fdb-card-title i{color:var(--green-600);font-size:15px;}
+.fdb-card-meta{
+  display:flex;align-items:center;gap:8px;
+}
+.fdb-count{
+  font-size:11px;font-weight:700;
+  color:var(--slate-400);
+  background:var(--slate-100);
+  padding:3px 9px;border-radius:20px;
+  letter-spacing:.02em;
+}
+.fdb-card-link{
+  font-size:12px;font-weight:700;
+  color:var(--green-600);text-decoration:none;
+  display:flex;align-items:center;gap:3px;
+  letter-spacing:.01em;
+  transition:color .15s;
+}
+.fdb-card-link:hover{color:var(--green-700);}
 
-.db-empty{padding:36px 20px;text-align:center;color:var(--txt-3);font-size:13px;}
-.db-empty i{font-size:30px;display:block;margin-bottom:8px;opacity:.35;}
-.db-empty strong{display:block;color:var(--txt-2);font-size:14px;margin-bottom:4px;}
+/* ── PRODUCT ROW ── */
+.fdb-prod-row{
+  padding:14px 18px;
+  border-bottom:1px solid var(--slate-100);
+  display:flex;flex-direction:column;gap:10px;
+  transition:background .15s;
+}
+.fdb-prod-row:last-child{border-bottom:none;}
+.fdb-prod-row:hover{background:var(--slate-50);}
 
-.db-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;display:none;align-items:center;justify-content:center;padding:20px;}
-.db-modal-overlay.open{display:flex;}
-.db-modal{background:var(--white);border-radius:var(--radius);width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:mIn .22s ease;overflow:hidden;}
-@keyframes mIn{from{transform:translateY(16px) scale(.97);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
-.db-modal-body{padding:22px;}
-.db-modal-icon{width:44px;height:44px;border-radius:12px;background:var(--red-bg);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;}
-.db-modal-title{font-size:16px;font-weight:700;color:var(--txt-1);margin-bottom:6px;}
-.db-modal-msg{font-size:13px;color:var(--txt-2);line-height:1.55;}
-.db-modal-name{display:block;font-weight:700;color:var(--txt-1);background:var(--slate);padding:6px 10px;border-radius:6px;margin-top:7px;font-size:13px;word-break:break-word;}
-.db-modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;}
-.db-modal-cancel{padding:10px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--white);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:var(--txt-2);cursor:pointer;}
-.db-modal-cancel:hover{background:var(--slate);}
-.db-modal-confirm{padding:10px 16px;background:var(--red);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
-.db-modal-confirm:hover{background:#dc2626;}
+.fdb-prod-top{
+  display:flex;align-items:center;gap:12px;min-width:0;
+}
+.fdb-prod-img{
+  width:46px;height:46px;flex-shrink:0;
+  border-radius:10px;object-fit:cover;
+  border:1px solid var(--slate-200);
+}
+.fdb-prod-img-ph{
+  width:46px;height:46px;flex-shrink:0;
+  border-radius:10px;
+  background:var(--green-50);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:var(--slate-300);
+  border:1px solid var(--green-100);
+}
+.fdb-prod-info{flex:1;min-width:0;}
+.fdb-prod-name{
+  font-size:13px;font-weight:700;
+  color:var(--slate-900);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.fdb-prod-sub{
+  font-size:11px;font-weight:500;
+  color:var(--slate-400);
+  margin-top:3px;
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+}
+.fdb-badge{
+  display:inline-flex;align-items:center;
+  font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:20px;
+  letter-spacing:.04em;text-transform:uppercase;
+  white-space:nowrap;
+}
+.fdb-badge-ok {background:var(--green-100);color:var(--green-800);}
+.fdb-badge-low{background:var(--amber-100);color:var(--amber-700);}
+.fdb-badge-out{background:var(--red-100);  color:var(--red-700);}
+.fdb-prod-price{
+  flex-shrink:0;
+  font-size:14px;font-weight:800;
+  color:var(--green-600);white-space:nowrap;
+}
+
+.fdb-prod-bottom{
+  display:flex;justify-content:flex-end;gap:8px;
+  padding-top:2px;
+}
+.fdb-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:7px 12px;
+  border-radius:var(--radius-sm);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:11px;font-weight:700;
+  letter-spacing:.02em;
+  cursor:pointer;border:none;
+  text-decoration:none;
+  transition:all .18s;white-space:nowrap;
+}
+.fdb-btn-edit{
+  background:var(--green-50);
+  color:var(--green-700);
+  border:1.5px solid var(--green-200);
+}
+.fdb-btn-edit:hover{background:var(--green-600);color:var(--white);border-color:var(--green-600);}
+.fdb-btn-del{
+  background:var(--red-50);
+  color:var(--red-600);
+  border:1.5px solid var(--red-100);
+}
+.fdb-btn-del:hover{background:var(--red-600);color:var(--white);border-color:var(--red-600);}
+
+/* ── ORDER ROW ── */
+.fdb-order-row{
+  padding:14px 18px;
+  border-bottom:1px solid var(--slate-100);
+  display:flex;flex-direction:column;gap:10px;
+  transition:background .15s;
+}
+.fdb-order-row:last-child{border-bottom:none;}
+.fdb-order-row:hover{background:var(--slate-50);}
+
+.fdb-order-top{
+  display:flex;align-items:flex-start;
+  justify-content:space-between;gap:10px;
+  min-width:0;
+}
+.fdb-order-left{flex:1;min-width:0;}
+.fdb-order-num{
+  font-size:13px;font-weight:700;
+  color:var(--slate-900);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.fdb-order-meta{font-size:11px;font-weight:500;color:var(--slate-400);margin-top:3px;}
+.fdb-order-price{
+  flex-shrink:0;
+  font-size:14px;font-weight:800;
+  color:var(--green-600);white-space:nowrap;
+}
+
+.fdb-order-bottom{
+  display:flex;align-items:center;
+  justify-content:space-between;gap:8px;
+}
+
+/* Status badges */
+.fdb-status{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:10px;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;
+  padding:4px 10px;border-radius:20px;
+  white-space:nowrap;
+}
+.fdb-status::before{
+  content:'';width:6px;height:6px;
+  border-radius:50%;flex-shrink:0;
+}
+.fdb-status-pending   {background:var(--amber-50); color:var(--amber-700);}
+.fdb-status-pending::before{background:var(--amber-400);}
+.fdb-status-sent_out  {background:var(--blue-50);  color:var(--blue-700);}
+.fdb-status-sent_out::before{background:var(--blue-400);}
+.fdb-status-completed,
+.fdb-status-delivered {background:var(--green-50); color:var(--green-700);}
+.fdb-status-completed::before,
+.fdb-status-delivered::before{background:var(--green-400);}
+.fdb-status-rejected  {background:var(--red-50);   color:var(--red-700);}
+.fdb-status-rejected::before{background:var(--red-400);}
+.fdb-status-cancelled {background:var(--slate-100);color:var(--slate-600);}
+.fdb-status-cancelled::before{background:var(--slate-400);}
+
+.fdb-btn-view{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:7px 12px;
+  background:var(--slate-100);color:var(--slate-700);
+  border:1.5px solid var(--slate-200);
+  border-radius:var(--radius-sm);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:11px;font-weight:700;
+  text-decoration:none;cursor:pointer;
+  letter-spacing:.02em;
+  transition:all .18s;white-space:nowrap;
+}
+.fdb-btn-view:hover{background:var(--green-600);color:var(--white);border-color:var(--green-600);}
+
+/* ── EMPTY STATE ── */
+.fdb-empty{
+  padding:40px 20px;
+  text-align:center;
+  color:var(--slate-400);
+}
+.fdb-empty-icon{
+  width:52px;height:52px;
+  background:var(--slate-100);
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  margin:0 auto 14px;
+  color:var(--slate-300);
+}
+.fdb-empty strong{
+  display:block;
+  font-size:14px;font-weight:700;
+  color:var(--slate-600);margin-bottom:5px;
+}
+.fdb-empty p{font-size:12px;font-weight:500;line-height:1.5;}
+
+/* ── DELETE MODAL ── */
+.fdb-overlay{
+  position:fixed;inset:0;
+  background:rgba(15,23,42,.55);
+  backdrop-filter:blur(3px);
+  z-index:9000;
+  display:none;
+  align-items:flex-end;justify-content:center;
+  padding-bottom:0;
+}
+.fdb-overlay.open{display:flex;}
+.fdb-modal{
+  background:var(--white);
+  border-radius:20px 20px 0 0;
+  width:100%;max-width:520px;
+  padding:8px 0 0;
+  box-shadow:0 -8px 40px rgba(0,0,0,.15);
+  animation:slideUp .25s cubic-bezier(.32,.72,0,1);
+}
+@keyframes slideUp{
+  from{transform:translateY(100%);opacity:.6;}
+  to{transform:translateY(0);opacity:1;}
+}
+.fdb-modal-pill{
+  width:36px;height:4px;
+  background:var(--slate-200);
+  border-radius:2px;
+  margin:0 auto 20px;
+}
+.fdb-modal-body{padding:0 22px 6px;}
+.fdb-modal-icon-wrap{
+  width:50px;height:50px;
+  background:var(--red-50);
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:var(--red-600);
+  margin-bottom:14px;
+}
+.fdb-modal-title{
+  font-size:17px;font-weight:800;
+  color:var(--slate-900);margin-bottom:8px;
+}
+.fdb-modal-msg{font-size:13px;font-weight:500;color:var(--slate-600);line-height:1.6;}
+.fdb-modal-name{
+  display:block;
+  font-weight:700;color:var(--slate-900);
+  background:var(--slate-100);
+  padding:8px 12px;border-radius:var(--radius-sm);
+  margin-top:8px;font-size:13px;
+  word-break:break-word;
+  border:1px solid var(--slate-200);
+}
+.fdb-modal-foot{
+  padding:16px 22px 32px;
+  display:flex;flex-direction:column;gap:10px;
+  border-top:1px solid var(--slate-100);
+  margin-top:20px;
+}
+.fdb-modal-del-btn{
+  width:100%;padding:14px;
+  background:var(--red-600);color:var(--white);
+  border:none;border-radius:var(--radius-sm);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;font-weight:700;
+  cursor:pointer;transition:background .18s;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.fdb-modal-del-btn:hover{background:var(--red-700);}
+.fdb-modal-cancel-btn{
+  width:100%;padding:14px;
+  background:var(--slate-100);color:var(--slate-700);
+  border:1.5px solid var(--slate-200);
+  border-radius:var(--radius-sm);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;font-weight:700;
+  cursor:pointer;transition:background .18s;
+}
+.fdb-modal-cancel-btn:hover{background:var(--slate-200);}
 </style>
 
-<div class="db-wrap">
+<div class="fdb">
 
+  <!-- FLASH MESSAGES -->
   {% if messages %}
     {% for msg in messages %}
-    <div class="db-msg db-msg-{{ msg.tags|default:'success' }}">
-      <i class="bi bi-{% if msg.tags == 'error' %}x-circle{% else %}check-circle{% endif %}-fill"></i>
+    <div class="fdb-flash fdb-flash-{{ msg.tags|default:'success' }}">
+      <i class="bi bi-{% if msg.tags == 'error' %}x-circle-fill{% else %}check-circle-fill{% endif %}"></i>
       {{ msg }}
     </div>
     {% endfor %}
   {% endif %}
 
-  <!-- TOP BAR -->
-  <div class="db-topbar">
+  <!-- HEADER -->
+  <div class="fdb-header">
     <div>
-      <div class="db-greeting">
-        Welcome back, <span>{{ request.user.first_name|default:request.user.username }}</span> 👋
+      <div class="fdb-greet">
+        Hey, <span>{{ request.user.first_name|default:request.user.username }}</span> 👋
       </div>
-      <div class="db-subtitle">Here's what's happening on your farm today.</div>
+      <div class="fdb-sub">Here's what's happening on your farm today.</div>
     </div>
-    <a href="{% url 'add_product' %}" class="db-add-btn">
+    <a href="{% url 'add_product' %}" class="fdb-add-btn">
       <i class="bi bi-plus-lg"></i> Add Product
     </a>
   </div>
 
   <!-- STATS -->
-  <div class="db-stats">
-    <div class="db-stat">
-      <div class="db-stat-icon green"><i class="bi bi-box-seam"></i></div>
-      <div class="db-stat-body">
-        <div class="db-stat-val">{{ total_products }}</div>
-        <div class="db-stat-lbl">Products</div>
+  <div class="fdb-stats">
+    <div class="fdb-stat">
+      <div class="fdb-stat-icon g"><i class="bi bi-box-seam-fill"></i></div>
+      <div>
+        <div class="fdb-stat-val">{{ total_products }}</div>
+        <div class="fdb-stat-lbl">Products</div>
       </div>
     </div>
-    <div class="db-stat">
-      <div class="db-stat-icon amber"><i class="bi bi-receipt"></i></div>
-      <div class="db-stat-body">
-        <div class="db-stat-val">{{ total_orders }}</div>
-        <div class="db-stat-lbl">Orders</div>
+    <div class="fdb-stat">
+      <div class="fdb-stat-icon a"><i class="bi bi-receipt"></i></div>
+      <div>
+        <div class="fdb-stat-val">{{ total_orders }}</div>
+        <div class="fdb-stat-lbl">Orders</div>
       </div>
     </div>
   </div>
 
   <!-- MY PRODUCTS -->
-  <div class="db-card">
-    <div class="db-card-header">
-      <div class="db-card-title">
-        <i class="bi bi-grid-3x3-gap"></i> My Products
+  <div class="fdb-card">
+    <div class="fdb-card-head">
+      <div class="fdb-card-title">
+        <i class="bi bi-grid-3x3-gap-fill"></i> My Products
       </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <span class="db-card-count">{{ total_products }}</span>
-        <a href="{% url 'my_products' %}" class="db-card-link">
+      <div class="fdb-card-meta">
+        <span class="fdb-count">{{ total_products }}</span>
+        <a href="{% url 'my_products' %}" class="fdb-card-link">
           View all <i class="bi bi-arrow-right"></i>
         </a>
       </div>
     </div>
 
     {% if products %}
-    <div class="db-product-list">
       {% for product in products %}
-      <div class="db-product-row">
-        {% if product.image %}
-          <img src="{{ product.image.url }}" class="db-prod-img" alt="{{ product.name }}">
-        {% else %}
-          <div class="db-prod-img-ph"><i class="bi bi-image"></i></div>
-        {% endif %}
-        <div class="db-prod-info">
-          <div class="db-prod-name">{{ product.name }}</div>
-          <div class="db-prod-meta">
-            <span>{{ product.get_category_display }}</span>
-            {% if product.quantity == 0 %}
-              <span class="db-stock db-stock-out">Out</span>
-            {% elif product.quantity <= 5 %}
-              <span class="db-stock db-stock-low">Low ({{ product.quantity }})</span>
-            {% else %}
-              <span class="db-stock db-stock-ok">{{ product.quantity }}</span>
-            {% endif %}
+      <div class="fdb-prod-row">
+        <div class="fdb-prod-top">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" class="fdb-prod-img" alt="{{ product.name }}">
+          {% else %}
+            <div class="fdb-prod-img-ph"><i class="bi bi-image"></i></div>
+          {% endif %}
+
+          <div class="fdb-prod-info">
+            <div class="fdb-prod-name">{{ product.name }}</div>
+            <div class="fdb-prod-sub">
+              <span>{{ product.get_category_display }}</span>
+              {% if product.quantity == 0 %}
+                <span class="fdb-badge fdb-badge-out">Out of stock</span>
+              {% elif product.quantity <= 5 %}
+                <span class="fdb-badge fdb-badge-low">Low · {{ product.quantity }}</span>
+              {% else %}
+                <span class="fdb-badge fdb-badge-ok">{{ product.quantity }} in stock</span>
+              {% endif %}
+            </div>
           </div>
+
+          <div class="fdb-prod-price">₦{{ product.price|floatformat:2|intcomma }}</div>
         </div>
-        <div class="db-prod-price">₦{{ product.price|floatformat:2|intcomma }}</div>
-        <div class="db-row-actions">
-          <a href="{% url 'edit_product' product.id %}?source=dashboard" class="db-btn-edit">
-            <i class="bi bi-pencil"></i> Edit
+
+        <div class="fdb-prod-bottom">
+          <a href="{% url 'edit_product' product.id %}?source=dashboard" class="fdb-btn fdb-btn-edit">
+            <i class="bi bi-pencil-fill"></i> Edit
           </a>
-          <button type="button" class="db-btn-del"
+          <button type="button" class="fdb-btn fdb-btn-del"
                   onclick="openDeleteModal({{ product.id }},'{{ product.name|escapejs }}','dashboard')">
-            <i class="bi bi-trash"></i> Delete
+            <i class="bi bi-trash-fill"></i> Delete
           </button>
         </div>
       </div>
       {% endfor %}
-    </div>
     {% else %}
-    <div class="db-empty">
-      <i class="bi bi-box-seam"></i>
+    <div class="fdb-empty">
+      <div class="fdb-empty-icon"><i class="bi bi-box-seam"></i></div>
       <strong>No products yet</strong>
-      <p>Add your first product to start selling.</p>
+      <p>Add your first product to start selling on Farm Market Africa.</p>
     </div>
     {% endif %}
   </div>
 
   <!-- RECENT ORDERS -->
-  <div class="db-card">
-    <div class="db-card-header">
-      <div class="db-card-title">
+  <div class="fdb-card">
+    <div class="fdb-card-head">
+      <div class="fdb-card-title">
         <i class="bi bi-receipt"></i> Recent Orders
       </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <span class="db-card-count">{{ recent_orders|length }}</span>
-        <a href="{% url 'farmer_profile' %}" class="db-card-link">
+      <div class="fdb-card-meta">
+        <span class="fdb-count">{{ recent_orders|length }}</span>
+        <a href="{% url 'farmer_profile' %}" class="fdb-card-link">
           View all <i class="bi bi-arrow-right"></i>
         </a>
       </div>
@@ -253,14 +554,16 @@
 
     {% if recent_orders %}
       {% for order in recent_orders %}
-      <div class="db-order-row">
-        <div class="db-order-left">
-          <div class="db-order-num">{{ order.order_number }}</div>
-          <div class="db-order-meta">{{ order.full_name }} · {{ order.created_at|date:"d M Y" }}</div>
+      <div class="fdb-order-row">
+        <div class="fdb-order-top">
+          <div class="fdb-order-left">
+            <div class="fdb-order-num">{{ order.order_number }}</div>
+            <div class="fdb-order-meta">{{ order.full_name }} · {{ order.created_at|date:"d M Y" }}</div>
+          </div>
+          <div class="fdb-order-price">₦{{ order.total|floatformat:2|intcomma }}</div>
         </div>
-        <div class="db-order-right">
-          <div class="db-order-price">₦{{ order.total|floatformat:2|intcomma }}</div>
-          <span class="db-status db-status-{{ order.status }}">
+        <div class="fdb-order-bottom">
+          <span class="fdb-status fdb-status-{{ order.status }}">
             {% if order.status == 'pending'    %}Pending
             {% elif order.status == 'sent_out' %}Active
             {% elif order.status == 'completed' or order.status == 'delivered' %}Completed
@@ -268,43 +571,46 @@
             {% elif order.status == 'cancelled' %}Cancelled
             {% else %}{{ order.get_status_display }}{% endif %}
           </span>
-          <!-- NEW: View Details button -->
-          <a href="{% url 'order_detail' order.id %}" class="db-btn-view">
+          <a href="{% url 'order_detail' order.id %}" class="fdb-btn-view">
             <i class="bi bi-eye"></i> View
           </a>
         </div>
       </div>
       {% endfor %}
     {% else %}
-    <div class="db-empty">
-      <i class="bi bi-inbox"></i>
-      No orders yet.
+    <div class="fdb-empty">
+      <div class="fdb-empty-icon"><i class="bi bi-inbox"></i></div>
+      <strong>No orders yet</strong>
+      <p>Orders from buyers will appear here.</p>
     </div>
     {% endif %}
   </div>
 
 </div>
 
-<!-- DELETE CONFIRM MODAL -->
-<div class="db-modal-overlay" id="deleteModal">
-  <div class="db-modal">
-    <div class="db-modal-body">
-      <div class="db-modal-icon"><i class="bi bi-trash"></i></div>
-      <div class="db-modal-title">Delete Product?</div>
-      <div class="db-modal-msg">
-        This action cannot be undone. You are about to delete:
-        <span class="db-modal-name" id="deleteProductName"></span>
+<!-- DELETE CONFIRM MODAL (bottom sheet) -->
+<div class="fdb-overlay" id="deleteModal">
+  <div class="fdb-modal">
+    <div class="fdb-modal-pill"></div>
+    <div class="fdb-modal-body">
+      <div class="fdb-modal-icon-wrap"><i class="bi bi-trash-fill"></i></div>
+      <div class="fdb-modal-title">Delete Product?</div>
+      <div class="fdb-modal-msg">
+        This action is permanent and cannot be undone. You're about to delete:
+        <span class="fdb-modal-name" id="deleteProductName"></span>
       </div>
     </div>
-    <div class="db-modal-foot">
-      <button type="button" class="db-modal-cancel" onclick="closeDeleteModal()">Cancel</button>
-      <form id="deleteForm" method="POST" style="display:inline;">
+    <div class="fdb-modal-foot">
+      <form id="deleteForm" method="POST" style="width:100%;">
         {% csrf_token %}
         <input type="hidden" name="source" id="deleteSource" value="dashboard">
-        <button type="submit" class="db-modal-confirm">
-          <i class="bi bi-trash"></i> Yes, Delete
+        <button type="submit" class="fdb-modal-del-btn">
+          <i class="bi bi-trash-fill"></i> Yes, Delete Product
         </button>
       </form>
+      <button type="button" class="fdb-modal-cancel-btn" onclick="closeDeleteModal()">
+        Cancel
+      </button>
     </div>
   </div>
 </div>
@@ -315,12 +621,17 @@ function openDeleteModal(id, name, source) {
   document.getElementById('deleteSource').value = source || 'dashboard';
   document.getElementById('deleteForm').action = '/farmer/products/delete/' + id + '/';
   document.getElementById('deleteModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 function closeDeleteModal() {
   document.getElementById('deleteModal').classList.remove('open');
+  document.body.style.overflow = '';
 }
 document.getElementById('deleteModal').addEventListener('click', function(e) {
   if (e.target === this) closeDeleteModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDeleteModal();
 });
 </script>
 {% endblock %}
