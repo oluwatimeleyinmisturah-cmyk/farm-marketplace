@@ -2,7 +2,7 @@ from pathlib import Path
 from decouple import config
 import dj_database_url
 import os
-from decouple import config
+import cloudinary
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
