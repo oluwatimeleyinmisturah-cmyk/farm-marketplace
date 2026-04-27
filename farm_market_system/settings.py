@@ -2,6 +2,7 @@ from pathlib import Path
 from decouple import config
 import dj_database_url
 import os
+from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -30,6 +31,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'marketplace.apps.MarketplaceConfig',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 
@@ -133,3 +136,11 @@ CONTACT_EMAIL = 'thesanniolawales@gmail.com'
 # ─────────────────────────────
 PAYSTACK_PUBLIC_KEY = "pk_test_53737f1a57dac07a9d385fd8f4a7a3b82b1bf861"
 PAYSTACK_SECRET_KEY = "sk_test_f488b8a3c3af6b3bd6fab7e3982f6f5dc9b3de05"
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUD_NAME'),
+    'API_KEY': config('API_KEY'),
+    'API_SECRET': config('API_SECRET'),
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
