@@ -66,12 +66,9 @@ ROOT_URLCONF = 'farm_market_system.urls'
 WSGI_APPLICATION = 'farm_market_system.wsgi.application'
 
 
-# ─────────────────────────────
-# DATABASE
-# ─────────────────────────────
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        default=os.environ.get('DATABASE_URL'),
         conn_max_age=600
     )
 }
