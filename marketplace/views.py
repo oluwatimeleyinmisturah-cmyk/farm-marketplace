@@ -1071,5 +1071,17 @@ def toggle_notification_read(request, notif_id):
         return JsonResponse({'success': True, 'is_read': notif.is_read})
     except Notification.DoesNotExist:
         return JsonResponse({'success': False}, status=404)
+        
+from django.http import HttpResponse
+from django.contrib.auth.models import User
 
+def setup_admin(request):
+    if not User.objects.filter(username='OlaWale').exists():
+        User.objects.create_superuser(
+            'OlaWale',
+            'thesanniolawales@gmail.com',
+            'JeliliSanni'
+        )
+        return HttpResponse("Admin created successfully")
+    return HttpResponse("Admin already exists")
      
