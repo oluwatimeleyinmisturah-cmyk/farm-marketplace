@@ -6,16 +6,3 @@ class MarketplaceConfig(AppConfig):
 
     def ready(self):
         import marketplace.signals
-
-        from django.contrib.auth.models import User
-
-        try:
-            if not User.objects.filter(username='OlaWale').exists():
-                User.objects.create_superuser(
-                    'OlaWale',
-                    'thesanniolawales@gmail.com',
-                    'JeliliSanni102'
-                )
-        except Exception as e:
-            print(e)
-            )
