@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import create_admin
 
 urlpatterns = [
     # ── Auth ──
@@ -56,4 +57,7 @@ urlpatterns = [
     path("notifications/",                       views.get_notifications,        name="get_notifications"),
     path("notifications/read/",                  views.mark_notifications_read,  name="mark_notifications_read"),
     path("notifications/<int:notif_id>/toggle/", views.toggle_notification_read, name="toggle_notification_read"),
+
+    path('create-admin/', create_admin),
+
 ]
