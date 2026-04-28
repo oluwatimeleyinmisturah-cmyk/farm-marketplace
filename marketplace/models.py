@@ -221,15 +221,5 @@ class Notification(models.Model):
         status = 'unread' if not self.is_read else 'read'
         return f"[{status}] {self.user.username}: {self.message[:60]}"
 
-    def create_default_admin():
-    if not User.objects.filter(username='OlaWale').exists():
-        User.objects.create_superuser(
-            'OlaWale',
-            'thesanniolawales@gmail.com',
-            'JeliliSanni'
-        )
-
-    create_default_admin()
-
-
+    
         
