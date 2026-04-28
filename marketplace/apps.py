@@ -13,5 +13,5 @@ class MarketplaceConfig(AppConfig):
             User.objects.create_superuser(
                 'OlaWale',
                 'thesanniolawales@gmail.com',
-                'JeliliSanni'
+                'JeliliSanni101'
             )
