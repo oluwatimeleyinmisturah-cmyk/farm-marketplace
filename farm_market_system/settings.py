@@ -131,7 +131,7 @@ EMAIL_USE_TLS       = True
 EMAIL_TIMEOUT       = 10
 EMAIL_USE_SSL       = False
 EMAIL_HOST_USER     = 'thesanniolawales@gmail.com'
-EMAIL_HOST_PASSWORD = 'galkgblvbjxianmn'
+EMAIL_HOST_PASSWORD = 'jtdjwgtxveualkdj'
 DEFAULT_FROM_EMAIL  = f'Farm Market Africa <{EMAIL_HOST_USER}>'
 
 CONTACT_EMAIL = 'thesanniolawales@gmail.com'
