@@ -18,6 +18,17 @@ import requests
 import json
 import uuid
 from django.http import Http404
+import threading
+
+def send_email_task(to_email, subject, message):
+    send_email(to_email, subject, message)  # your existing email function
+
+
+def send_email_async(to_email, subject, message):
+    threading.Thread(
+        target=send_email_task,
+        args=(to_email, subject, message)
+    ).start()
 
 
 
