@@ -124,17 +124,17 @@ LOGOUT_REDIRECT_URL = 'login'
 # ─────────────────────────────
 # EMAIL (GMAIL SMTP)
 # ─────────────────────────────
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST          = 'smtp.gmail.com'
-EMAIL_PORT          = 587
-EMAIL_USE_TLS       = True
-EMAIL_TIMEOUT       = 10
-EMAIL_USE_SSL       = False
-EMAIL_HOST_USER     = 'thesanniolawales@gmail.com'
-EMAIL_HOST_PASSWORD = 'jtdjwgtxveualkdj'
-DEFAULT_FROM_EMAIL  = f'Farm Market Africa <{EMAIL_HOST_USER}>'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.sendgrid.net"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 
-CONTACT_EMAIL = 'thesanniolawales@gmail.com'
+EMAIL_HOST_USER = "apikey"
+EMAIL_HOST_PASSWORD = "TJkpSnkEy3ddBBykSIZvZDrQUG3G4zhq"
+
+DEFAULT_FROM_EMAIL = "Farm Market Africa <oluwatimeleyinmisturah@gmail.com>"
+
+CONTACT_EMAIL = 'oluwatimeleyinmisturah@gmail.com'
 
 
 
