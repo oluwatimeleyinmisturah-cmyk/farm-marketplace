@@ -59,7 +59,11 @@ def _send_otp_email(email, code, purpose):
             f"please ignore this email.\n\n"
             f"— Farm Market Africa Team"
         )
-    send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+    threading.Thread(
+    target=send_mail,
+    args=(subject, body, settings.DEFAULT_FROM_EMAIL, [email]),
+    kwargs={'fail_silently': True}
+).start()
 
 
 # ═══════════════════════════════════════════════
